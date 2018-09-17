@@ -1,4 +1,4 @@
-use super::{display::Location, events::*, pos::*};
+use super::{display::Location, energy::*, events::*, pos::*};
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
@@ -22,30 +22,33 @@ impl<'a> System<'a> for AIMoveS {
         Entities<'a>,
         ReadStorage<'a, WalkTarget>,
         WriteStorage<'a, Location>,
+        WriteStorage<'a, Energy>,
         Write<'a, Events>,
     );
 
-    fn run(&mut self, (entities, target, mut pos, mut events): Self::SystemData) {
+    fn run(&mut self, (entities, target, mut pos, mut energy, mut events): Self::SystemData) {
         use specs::Join;
 
-        for (entity, target, pos) in (&*entities, &target, &mut pos).join() {
+        for (entity, target, pos, energy) in (&*entities, &target, &mut pos, &mut energy).join() {
             if target.pos == pos.pos {
                 events.push(Event::TargetReached(entity));
             } else {
-                let mut diff = target.diff(pos);
-                if diff.0 > 1 {
-                    diff.0 = 1
+                if energy.try_spend(1.0) {
+                    let mut diff = target.diff(pos);
+                    if diff.0 > 1 {
+                        diff.0 = 1
+                    }
+                    if diff.0 < -1 {
+                        diff.0 = -1
+                    }
+                    if diff.1 > 1 {
+                        diff.1 = 1
+                    }
+                    if diff.1 < -1 {
+                        diff.1 = -1
+                    }
+                    pos.move_pos(diff);
                 }
-                if diff.0 < -1 {
-                    diff.0 = -1
-                }
-                if diff.1 > 1 {
-                    diff.1 = 1
-                }
-                if diff.1 < -1 {
-                    diff.1 = -1
-                }
-                pos.move_pos(diff);
             }
         }
     }

@@ -6,11 +6,12 @@ extern crate ncurses;
 pub mod ai;
 pub mod behavior;
 pub mod display;
+pub mod energy;
 pub mod events;
 pub mod player;
 pub mod pos;
 
-use self::{ai::*, behavior::*, display::*, events::*, player::*, pos::*};
+use self::{ai::*, behavior::*, display::*, energy::*, events::*, player::*, pos::*};
 use specs::prelude::{Builder, DispatcherBuilder, World};
 
 fn main() {
@@ -19,7 +20,8 @@ fn main() {
     let mut world = World::new();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(HunterBrainS, "hunter_brain", &[])
+        .with(EnergyS, "energy", &[])
+        .with(HunterBrainS, "hunter_brain", &["energy"])
         .with(AIMoveS, "ai_move", &["hunter_brain"])
         .with(PlayerMoveS, "player_move", &["ai_move"])
         .with_thread_local(DisplayS)
@@ -38,13 +40,15 @@ fn main() {
     world
         .create_entity()
         .with(Glyph('s'))
-        .with(HunterBrain::new(5))
+        .with(Energy::new(0.2))
+        .with(HunterBrain::new(1))
         .with(Location { pos: Pos(1, 1) })
         .build();
     world
         .create_entity()
         .with(Glyph('c'))
-        .with(HunterBrain::new(1))
+        .with(Energy::new(1.1))
+        .with(HunterBrain::new(3))
         .with(Location { pos: Pos(13, 12) })
         .build();
     world

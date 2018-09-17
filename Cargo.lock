@@ -309,15 +309,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "spec-play"
-version = "0.1.0"
-dependencies = [
- "ncurses 5.94.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "specs 0.12.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "specs-derive 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "specs"
 version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -342,6 +333,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "quote 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 0.12.15 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "specs-rl-exp"
+version = "0.1.0"
+dependencies = [
+ "ncurses 5.94.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "specs 0.12.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "specs-derive 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

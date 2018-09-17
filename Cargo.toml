@@ -1,0 +1,8 @@
+[package]
+name = "spec-play"
+version = "0.1.0"
+authors = ["Matthew Boeh <m@mboeh.com>"]
+
+[dependencies]
+specs = "0.12.1"
+specs-derive = "0.2.0"

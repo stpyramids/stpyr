@@ -6,3 +6,4 @@ authors = ["Matthew Boeh <m@mboeh.com>"]
 [dependencies]
 specs = "0.12.1"
 specs-derive = "0.2.0"
+ncurses = "5.94.0"

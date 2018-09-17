@@ -1,6 +1,6 @@
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Pos(pub u32, pub u32);
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub struct PosDiff(pub i32, pub i32);
 
 impl Pos {
@@ -24,7 +24,7 @@ pub trait HasPos {
             x += dx as u32;
         } else {
             if x >= (-dx as u32) {
-                x += dx as u32;
+                x -= (-dx as u32);
             } else {
                 x = 0;
             }
@@ -33,7 +33,7 @@ pub trait HasPos {
             y += dy as u32;
         } else {
             if y >= (-dy as u32) {
-                y += dy as u32;
+                y -= (-dy as u32);
             } else {
                 y = 0;
             }

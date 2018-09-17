@@ -1,11 +1,15 @@
 extern crate specs;
 #[macro_use]
 extern crate specs_derive;
+extern crate ncurses;
+
+use std::char;
 
 mod pos;
 use self::pos::*;
 
-use specs::prelude::*;
+use ncurses::*;
+use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
@@ -62,14 +66,17 @@ impl<'a> System<'a> for DisplayS {
             let idx = position.pos_to_idx(MAP_WIDTH);
             mapbuf[idx] = glyph.0;
         }
-        println!("TURN:");
+
+        clear();
+        printw("TURN:\n");
         for row in mapbuf.chunks(MAP_WIDTH) {
             let rowstr: String = row.into_iter().collect();
-            println!("{}", rowstr);
+            printw(&format!("{}\n", rowstr));
         }
         for evt in &events.events {
-            println!("LOG: {:?}", evt);
+            printw(&format!("LOG: {:?}\n", evt));
         }
+        refresh();
     }
 }
 
@@ -79,13 +86,92 @@ struct PlayerBrain;
 
 struct PlayerMoveS;
 impl<'a> System<'a> for PlayerMoveS {
-    type SystemData = (ReadStorage<'a, PlayerBrain>, WriteStorage<'a, Location>);
+    type SystemData = (
+        Read<'a, Input>,
+        ReadStorage<'a, PlayerBrain>,
+        WriteStorage<'a, Location>,
+    );
 
-    fn run(&mut self, (_player, mut pos): Self::SystemData) {
+    fn run(&mut self, (input, player, mut pos): Self::SystemData) {
         use specs::Join;
 
-        for pos in (&mut pos).join() {
-            // pass
+        for (_, pos) in (&player, &mut pos).join() {
+            match input.0 {
+                Some(ch) => match ch {
+                    'h' => pos.move_pos_xy(-1, 0),
+                    'j' => pos.move_pos_xy(0, 1),
+                    'k' => pos.move_pos_xy(0, -1),
+                    'l' => pos.move_pos_xy(1, 0),
+                    _ => (),
+                },
+                None => (),
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct Input(Option<char>);
+
+#[derive(Component, Debug)]
+#[storage(BTreeStorage)]
+struct HunterBrain(HunterState);
+#[derive(Debug)]
+enum HunterState {
+    Idle,
+    Hunting,
+    Satisfied(u32),
+}
+
+struct HunterBrainS;
+impl<'a> System<'a> for HunterBrainS {
+    type SystemData = (
+        Entities<'a>,
+        ReadStorage<'a, PlayerBrain>,
+        WriteStorage<'a, HunterBrain>,
+        ReadStorage<'a, Location>,
+        WriteStorage<'a, WalkTarget>,
+        Write<'a, Events>,
+    );
+
+    fn run(
+        &mut self,
+        (entities, player, mut hunter, pos, mut target, mut events): Self::SystemData,
+    ) {
+        use specs::Join;
+        let mut playerpos: Option<&Pos> = None;
+
+        for (player, pos) in (&player, &pos).join() {
+            playerpos = Some(pos.pos());
+        }
+        match playerpos {
+            Some(playerpos) => {
+                for (entity, hunter, pos) in (&*entities, &mut hunter, &pos).join() {
+                    match hunter.0 {
+                        HunterState::Idle => {
+                            events.push(Event::HunterHunts(entity));
+                            hunter.0 = HunterState::Hunting;
+                            target.insert(entity, WalkTarget { pos: *playerpos });
+                        }
+                        HunterState::Hunting => {
+                            for evt in &events.events {
+                                if let Event::TargetReached(entity) = evt {
+                                    hunter.0 = HunterState::Satisfied(5);
+                                    target.remove(*entity);
+                                }
+                            }
+                        }
+                        HunterState::Satisfied(n) => {
+                            if n == 0 {
+                                hunter.0 = HunterState::Idle;
+                            } else {
+                                hunter.0 = HunterState::Satisfied(n - 1);
+                            }
+                        }
+                    }
+                }
+            }
+            None => (),
         }
     }
 }
@@ -93,17 +179,18 @@ impl<'a> System<'a> for PlayerMoveS {
 struct AIMoveS;
 impl<'a> System<'a> for AIMoveS {
     type SystemData = (
+        Entities<'a>,
         ReadStorage<'a, WalkTarget>,
         WriteStorage<'a, Location>,
         Write<'a, Events>,
     );
 
-    fn run(&mut self, (target, mut pos, mut events): Self::SystemData) {
+    fn run(&mut self, (entities, target, mut pos, mut events): Self::SystemData) {
         use specs::Join;
 
-        for (target, pos) in (&target, &mut pos).join() {
+        for (entity, target, pos) in (&*entities, &target, &mut pos).join() {
             if target.pos == pos.pos {
-                events.push(Event::TargetReached);
+                events.push(Event::TargetReached(entity));
             } else {
                 let mut diff = target.diff(pos);
                 if diff.0 > 1 {
@@ -126,7 +213,8 @@ impl<'a> System<'a> for AIMoveS {
 
 #[derive(Clone, Debug)]
 enum Event {
-    TargetReached,
+    TargetReached(Entity),
+    HunterHunts(Entity),
 }
 
 #[derive(Default)]
@@ -165,11 +253,22 @@ impl<'a> System<'a> for EventPumpS {
     }
 }
 
+fn display_setup() {
+    initscr();
+    raw();
+
+    keypad(stdscr(), true);
+    noecho();
+}
+
 fn main() {
+    display_setup();
+
     let mut world = World::new();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(AIMoveS, "ai_move", &[])
+        .with(HunterBrainS, "hunter_brain", &[])
+        .with(AIMoveS, "ai_move", &["hunter_brain"])
         .with(PlayerMoveS, "player_move", &["ai_move"])
         .with_thread_local(DisplayS)
         .with_thread_local(EventPumpS)
@@ -177,6 +276,7 @@ fn main() {
     dispatcher.setup(&mut world.res);
 
     world.add_resource(Events::new());
+    world.add_resource(Input(None));
     world
         .create_entity()
         .with(Glyph('@'))
@@ -186,8 +286,8 @@ fn main() {
     world
         .create_entity()
         .with(Glyph('s'))
+        .with(HunterBrain(HunterState::Idle))
         .with(Location { pos: Pos(1, 1) })
-        .with(WalkTarget { pos: Pos(3, 5) })
         .build();
     world
         .create_entity()
@@ -195,14 +295,19 @@ fn main() {
         .with(Location { pos: Pos(2, 4) })
         .build();
 
-    dispatcher.dispatch(&mut world.res);
-    world.maintain();
-    dispatcher.dispatch(&mut world.res);
-    world.maintain();
-    dispatcher.dispatch(&mut world.res);
-    world.maintain();
-    dispatcher.dispatch(&mut world.res);
-    world.maintain();
-    dispatcher.dispatch(&mut world.res);
-    world.maintain();
+    loop {
+        dispatcher.dispatch(&mut world.res);
+        world.maintain();
+
+        let ch = char::from_u32(getch() as u32).unwrap();
+        match ch {
+            'q' => break,
+            other => {
+                let mut input = world.write_resource::<Input>();
+                *input = Input(Some(other));
+            }
+        }
+    }
+
+    endwin();
 }

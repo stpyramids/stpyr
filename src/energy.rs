@@ -1,3 +1,4 @@
+use super::log::DebugLog;
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
@@ -32,13 +33,14 @@ impl Energy {
 pub struct EnergyS;
 
 impl<'a> System<'a> for EnergyS {
-    type SystemData = (Entities<'a>, WriteStorage<'a, Energy>);
+    type SystemData = (Entities<'a>, WriteStorage<'a, Energy>, Write<'a, DebugLog>);
 
-    fn run(&mut self, (entities, mut energy): Self::SystemData) {
+    fn run(&mut self, (entities, mut energy, mut debug): Self::SystemData) {
         use specs::Join;
 
         for (entity, energy) in (&*entities, &mut energy).join() {
             energy.tick();
+            debug.log(format!("energy for {:?} = {}", entity, energy.current));
         }
     }
 }

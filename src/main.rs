@@ -3,15 +3,17 @@ extern crate specs;
 extern crate specs_derive;
 extern crate ncurses;
 
+pub mod action;
 pub mod ai;
 pub mod behavior;
 pub mod display;
 pub mod energy;
 pub mod events;
+pub mod log;
 pub mod player;
 pub mod pos;
 
-use self::{ai::*, behavior::*, display::*, energy::*, events::*, player::*, pos::*};
+use self::{action::*, ai::*, behavior::*, display::*, energy::*, events::*, player::*, pos::*};
 use specs::prelude::{Builder, DispatcherBuilder, World};
 
 fn main() {
@@ -24,6 +26,7 @@ fn main() {
         .with(HunterBrainS, "hunter_brain", &["energy"])
         .with(AIMoveS, "ai_move", &["hunter_brain"])
         .with(PlayerMoveS, "player_move", &["ai_move"])
+        .with(TurnS, "turn", &["player_move"])
         .with_thread_local(DisplayS)
         .with_thread_local(EventPumpS)
         .build();
@@ -41,6 +44,7 @@ fn main() {
         .create_entity()
         .with(Glyph('s'))
         .with(Energy::new(0.2))
+        .with(Turn::wait())
         .with(HunterBrain::new(1))
         .with(Location { pos: Pos(1, 1) })
         .build();
@@ -48,6 +52,7 @@ fn main() {
         .create_entity()
         .with(Glyph('c'))
         .with(Energy::new(1.1))
+        .with(Turn::wait())
         .with(HunterBrain::new(3))
         .with(Location { pos: Pos(13, 12) })
         .build();

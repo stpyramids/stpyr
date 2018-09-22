@@ -1,4 +1,4 @@
-use super::{display::Location, energy::*, events::*, pos::*};
+use super::{action::Turn, display::Location, events::*, log::DebugLog, pos::*};
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
@@ -21,34 +21,34 @@ impl<'a> System<'a> for AIMoveS {
     type SystemData = (
         Entities<'a>,
         ReadStorage<'a, WalkTarget>,
-        WriteStorage<'a, Location>,
-        WriteStorage<'a, Energy>,
+        ReadStorage<'a, Location>,
+        WriteStorage<'a, Turn>,
         Write<'a, Events>,
+        Write<'a, DebugLog>,
     );
 
-    fn run(&mut self, (entities, target, mut pos, mut energy, mut events): Self::SystemData) {
+    fn run(&mut self, (entities, target, pos, mut turn, mut events, mut debug): Self::SystemData) {
         use specs::Join;
 
-        for (entity, target, pos, energy) in (&*entities, &target, &mut pos, &mut energy).join() {
+        for (entity, target, pos, turn) in (&*entities, &target, &pos, &mut turn).join() {
             if target.pos == pos.pos {
                 events.push(Event::TargetReached(entity));
             } else {
-                if energy.try_spend(1.0) {
-                    let mut diff = target.diff(pos);
-                    if diff.0 > 1 {
-                        diff.0 = 1
-                    }
-                    if diff.0 < -1 {
-                        diff.0 = -1
-                    }
-                    if diff.1 > 1 {
-                        diff.1 = 1
-                    }
-                    if diff.1 < -1 {
-                        diff.1 = -1
-                    }
-                    pos.move_pos(diff);
+                let PosDiff(mut dx, mut dy) = target.diff(pos);
+                if dx > 1 {
+                    dx = 1
                 }
+                if dx < -1 {
+                    dx = -1
+                }
+                if dy > 1 {
+                    dy = 1
+                }
+                if dy < -1 {
+                    dy = -1
+                }
+                *turn = Turn::walk(dx, dy);
+                debug.log(format!("Turn::walk({}, {})", dx, dy));
             }
         }
     }

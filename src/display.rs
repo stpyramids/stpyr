@@ -1,4 +1,4 @@
-use super::{events::*, pos::*};
+use super::{events::*, log::DebugLog, pos::*};
 use ncurses::*;
 use specs::prelude::*;
 use std::char;
@@ -47,9 +47,10 @@ impl<'a> System<'a> for DisplayS {
         ReadStorage<'a, Location>,
         ReadStorage<'a, Glyph>,
         Read<'a, Events>,
+        Write<'a, DebugLog>,
     );
 
-    fn run(&mut self, (position, glyph, events): Self::SystemData) {
+    fn run(&mut self, (position, glyph, events, mut log): Self::SystemData) {
         use specs::Join;
 
         let mut mapbuf: Vec<char> = vec![];
@@ -61,14 +62,17 @@ impl<'a> System<'a> for DisplayS {
         }
 
         clear();
-        printw("TURN:\n");
         for row in mapbuf.chunks(MAP_WIDTH) {
             let rowstr: String = row.into_iter().collect();
             printw(&format!("{}\n", rowstr));
         }
         for evt in &events.events {
-            printw(&format!("LOG: {:?}\n", evt));
+            printw(&format!("EVENT: {:?}\n", evt));
         }
+        for message in &log.messages {
+            printw(&format!("LOG: {}\n", message));
+        }
+        log.messages.clear();
         refresh();
     }
 }

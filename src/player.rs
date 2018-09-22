@@ -1,4 +1,4 @@
-use super::{display::*, pos::*};
+use super::{map::Location, pos::*};
 use specs::prelude::*;
 
 #[derive(Default, Component, Debug)]

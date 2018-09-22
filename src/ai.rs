@@ -1,4 +1,4 @@
-use super::{action::Turn, display::Location, events::*, log::DebugLog, pos::*};
+use super::{action::Turn, events::*, log::DebugLog, map::Location, pos::*};
 use specs::prelude::*;
 
 #[derive(Component, Debug)]

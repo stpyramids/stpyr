@@ -1,4 +1,4 @@
-use super::{display::Location, energy::*, events::*, pos::*};
+use super::{energy::*, map::Location, pos::*};
 use specs::prelude::*;
 
 #[derive(Component, Debug)]

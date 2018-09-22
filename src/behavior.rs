@@ -1,4 +1,4 @@
-use super::{ai::WalkTarget, display::Location, events::*, player::PlayerBrain, pos::*};
+use super::{ai::WalkTarget, events::*, map::Location, player::PlayerBrain, pos::*};
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Component, Debug)]

@@ -1,32 +1,15 @@
-use super::{events::*, log::DebugLog, pos::*};
+use super::{events::*, log::DebugLog, map::*, player::*, pos::*};
 use ncurses::*;
 use specs::prelude::*;
 use std::char;
 
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
-pub struct Location {
-    pub pos: Pos,
-}
-
-impl HasPos for Location {
-    fn pos(&self) -> &Pos {
-        &self.pos
-    }
-    fn set_pos(&mut self, pos: Pos) {
-        self.pos = pos;
-    }
-}
-#[derive(Component, Debug)]
-#[storage(VecStorage)]
 pub struct Glyph(pub char);
 
-const MAP_WIDTH: usize = 15;
-const MAP_HEIGHT: usize = 15;
+pub struct CursesDisplayS;
 
-pub struct DisplayS;
-
-impl DisplayS {
+impl CursesDisplayS {
     pub fn init() {
         initscr();
         raw();
@@ -42,27 +25,32 @@ impl DisplayS {
     }
 }
 
-impl<'a> System<'a> for DisplayS {
+impl<'a> System<'a> for CursesDisplayS {
     type SystemData = (
         ReadStorage<'a, Location>,
         ReadStorage<'a, Glyph>,
+        ReadStorage<'a, PlayerBrain>,
+        ReadStorage<'a, Map>,
         Read<'a, Events>,
         Write<'a, DebugLog>,
     );
 
-    fn run(&mut self, (position, glyph, events, mut log): Self::SystemData) {
+    fn run(&mut self, (position, glyph, player, maps, events, mut log): Self::SystemData) {
         use specs::Join;
 
+        let (playerpos, &_) = (&position, &player).join().next().unwrap();
+        let map = maps.get(playerpos.map).unwrap();
+
         let mut mapbuf: Vec<char> = vec![];
-        mapbuf.resize(MAP_WIDTH * MAP_HEIGHT, '.');
+        mapbuf.resize(map.width * map.height, '.');
 
         for (position, glyph) in (&position, &glyph).join() {
-            let idx = position.pos_to_idx(MAP_WIDTH);
+            let idx = position.pos_to_idx(map.width);
             mapbuf[idx] = glyph.0;
         }
 
         clear();
-        for row in mapbuf.chunks(MAP_WIDTH) {
+        for row in mapbuf.chunks(map.width) {
             let rowstr: String = row.into_iter().collect();
             printw(&format!("{}\n", rowstr));
         }

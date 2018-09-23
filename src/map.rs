@@ -10,15 +10,15 @@ pub struct Tile {
 
 #[derive(Component, Debug)]
 #[storage(BTreeStorage)]
-pub struct Map {
+pub struct TileMap {
     pub width: u32,
     pub height: u32,
     pub tiles: Vec<Tile>,
 }
 
-impl Map {
-    pub fn new(width: u32, height: u32) -> Map {
-        Map {
+impl TileMap {
+    pub fn new(width: u32, height: u32) -> TileMap {
+        TileMap {
             width,
             height,
             tiles: vec![

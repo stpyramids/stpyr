@@ -29,7 +29,7 @@ impl<'a> System<'a> for AIMoveS {
         ReadStorage<'a, WalkTarget>,
         ReadStorage<'a, Location>,
         WriteStorage<'a, Turn>,
-        ReadStorage<'a, Map>,
+        ReadStorage<'a, TileMap>,
         Write<'a, Events>,
     );
 

@@ -1,4 +1,4 @@
-use super::{events::*, log::DebugLog, map::*, player::*, pos::*};
+use super::{events::*, fov::*, log::DebugLog, map::*, player::*, pos::*};
 use ncurses::*;
 use specs::prelude::*;
 use std::char;
@@ -31,21 +31,27 @@ impl<'a> System<'a> for CursesDisplayS {
         ReadStorage<'a, Location>,
         ReadStorage<'a, Glyph>,
         ReadStorage<'a, PlayerBrain>,
-        ReadStorage<'a, Map>,
+        ReadStorage<'a, TileMap>,
+        ReadStorage<'a, FovMap>,
         Read<'a, Events>,
         Read<'a, GameState>,
         Write<'a, DebugLog>,
     );
 
-    fn run(&mut self, (position, glyph, player, maps, events, game, mut log): Self::SystemData) {
+    fn run(
+        &mut self,
+        (position, glyph, player, maps, fovs, events, game, mut log): Self::SystemData,
+    ) {
         use specs::Join;
 
         if !game.active() {
             // Don't rerender except on a turn
             return;
         }
+
         let (playerpos, &_) = (&position, &player).join().next().unwrap();
         let map = maps.get(playerpos.map).unwrap();
+        let (fov, &_) = (&fovs, &player).join().next().unwrap();
 
         let mut mapbuf: Vec<char> = map
             .tiles
@@ -56,7 +62,9 @@ impl<'a> System<'a> for CursesDisplayS {
 
         for (position, glyph) in (&position, &glyph).join() {
             let idx = position.pos_to_idx(map.width as usize);
-            mapbuf[idx] = glyph.0;
+            if fov.visible(position.pos) {
+                mapbuf[idx] = glyph.0;
+            }
         }
 
         clear();
@@ -64,6 +72,7 @@ impl<'a> System<'a> for CursesDisplayS {
             let rowstr: String = row.into_iter().collect();
             printw(&format!("{}\n", rowstr));
         }
+        printw(&format!("{:?}", fov.visible));
         for evt in &events.events {
             printw(&format!("EVENT: {:?}\n", evt));
         }

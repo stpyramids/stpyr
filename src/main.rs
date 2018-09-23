@@ -1,6 +1,7 @@
 extern crate specs;
 #[macro_use]
 extern crate specs_derive;
+extern crate line_drawing;
 extern crate ncurses;
 extern crate pathfinding;
 
@@ -10,6 +11,7 @@ pub mod behavior;
 pub mod curses;
 pub mod energy;
 pub mod events;
+pub mod fov;
 pub mod log;
 pub mod map;
 pub mod player;
@@ -26,6 +28,7 @@ fn main() {
     }));
 
     run_game();
+    curses::CursesDisplayS::finish();
 }
 
 fn run_game() {
@@ -34,7 +37,8 @@ fn run_game() {
     let mut world = World::new();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(energy::EnergyS, "energy", &[])
+        .with(fov::FovS, "fov", &[])
+        .with(energy::EnergyS, "energy", &["fov"])
         .with(behavior::HunterBrainS, "hunter_brain", &["energy"])
         .with(ai::AIMoveS, "ai_move", &["hunter_brain"])
         .with(player::PlayerMoveS, "player_move", &["ai_move"])
@@ -46,7 +50,7 @@ fn run_game() {
 
     world.add_resource(events::Events::new());
     world.add_resource(player::GameState::Starting);
-    let mut firstmap = map::Map::new(15, 15);
+    let mut firstmap = map::TileMap::new(15, 15);
     for idx in vec![22, 41, 58, 76, 124, 125, 126, 127, 210, 211, 213] {
         firstmap.tiles[idx] = map::Tile {
             glyph: curses::Glyph('#'),
@@ -64,7 +68,8 @@ fn run_game() {
         .with(map::Location {
             map: map,
             pos: Pos(7, 9),
-        }).build();
+        }).with(fov::FovMap::default())
+        .build();
     world
         .create_entity()
         .with(curses::Glyph('s'))
@@ -74,7 +79,8 @@ fn run_game() {
         .with(map::Location {
             map: map,
             pos: Pos(1, 1),
-        }).build();
+        }).with(fov::FovMap::default())
+        .build();
     world
         .create_entity()
         .with(curses::Glyph('c'))
@@ -84,7 +90,8 @@ fn run_game() {
         .with(map::Location {
             map: map,
             pos: Pos(13, 12),
-        }).build();
+        }).with(fov::FovMap::default())
+        .build();
 
     loop {
         dispatcher.dispatch(&mut world.res);

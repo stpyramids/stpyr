@@ -45,7 +45,7 @@ impl<'a> System<'a> for TurnS {
         WriteStorage<'a, Energy>,
         WriteStorage<'a, Location>,
         ReadStorage<'a, PlayerBrain>,
-        ReadStorage<'a, Map>,
+        ReadStorage<'a, TileMap>,
         Write<'a, Events>,
         Write<'a, DebugLog>,
     );
@@ -55,7 +55,7 @@ impl<'a> System<'a> for TurnS {
         (entities, mut turns, mut energies, mut pos, player, maps, mut events, mut debug): Self::SystemData,
 ){
         use specs::Join;
-        let map: &Map;
+        let map: &TileMap;
 
         {
             let (playerpos, &_) = (&mut pos, &player).join().next().unwrap();

@@ -2,6 +2,7 @@ extern crate specs;
 #[macro_use]
 extern crate specs_derive;
 extern crate ncurses;
+extern crate pathfinding;
 
 pub mod action;
 pub mod ai;
@@ -18,6 +19,16 @@ use self::pos::*;
 use specs::prelude::{Builder, DispatcherBuilder, World};
 
 fn main() {
+    let default_panic = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |panic| {
+        curses::CursesDisplayS::finish();
+        default_panic(panic);
+    }));
+
+    run_game();
+}
+
+fn run_game() {
     curses::CursesDisplayS::init();
 
     let mut world = World::new();
@@ -94,6 +105,4 @@ fn main() {
             }
         };
     }
-
-    curses::CursesDisplayS::finish();
 }

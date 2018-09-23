@@ -7,3 +7,4 @@ authors = ["Matthew Boeh <m@mboeh.com>"]
 specs = "0.12.1"
 specs-derive = "0.2.0"
 ncurses = "5.94.0"
+pathfinding = "0.8"

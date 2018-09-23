@@ -2,7 +2,7 @@ use specs::prelude::*;
 
 #[derive(Clone, Debug)]
 pub enum Event {
-    MoveFailed(Entity),
+    MoveFailed(Entity, i32, i32),
     TargetReached(Entity),
     HunterHunts(Entity),
 }

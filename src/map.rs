@@ -27,13 +27,15 @@ impl Map {
                     solid: false,
                     opaque: false
                 };
-                (width * height) as usize
+                (width * height + 1) as usize
             ],
         }
     }
-
     pub fn at(&self, pos: Pos) -> &Tile {
         &self.tiles[pos.to_idx(self.width)]
+    }
+    pub fn contains(&self, pos: Pos) -> bool {
+        pos.0 < self.width && pos.1 < self.height
     }
 }
 

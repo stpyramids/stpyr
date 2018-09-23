@@ -65,6 +65,7 @@ impl<'a> System<'a> for TurnS {
         for (entity, turn, energy, pos) in (&*entities, &mut turns, &mut energies, &mut pos).join()
         {
             if energy.can_spend(turn.cost) {
+                debug.log(format!("{:?}", turn));
                 match turn.action {
                     Action::Wait => {
                         turn.succeeded = true;
@@ -72,18 +73,17 @@ impl<'a> System<'a> for TurnS {
                     Action::Walk(dx, dy) => {
                         let new_pos = pos.move_pos_xy(dx, dy);
                         let new_pos = new_pos.clamp((0, 0), (map.width - 1, map.height - 1));
-                        if !map.at(new_pos).solid {
+                        if map.at(new_pos).solid {
+                            events.push(Event::MoveFailed(entity, dx, dy));
+                        } else {
                             pos.set_pos(new_pos);
                             turn.succeeded = true;
                         }
-                        debug.log(format!("{:?}", pos));
                     }
                 };
             }
             if turn.succeeded {
                 energy.spend(turn.cost);
-            } else {
-                events.push(Event::MoveFailed(entity));
             }
         }
     }

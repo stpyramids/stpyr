@@ -1,4 +1,6 @@
-#[derive(PartialEq, Debug, Clone, Copy)]
+use pathfinding::prelude::absdiff;
+
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Pos(pub u32, pub u32);
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub struct PosDiff(pub i32, pub i32);
@@ -26,7 +28,7 @@ pub fn clamp_xy<T: PartialOrd<T>>(xy: (T, T), low: (T, T), high: (T, T)) -> (T, 
 }
 
 impl Pos {
-    fn diff(&self, other: &Pos) -> PosDiff {
+    pub fn diff(&self, other: &Pos) -> PosDiff {
         PosDiff(
             self.0 as i32 - other.0 as i32,
             self.1 as i32 - other.1 as i32,
@@ -40,6 +42,28 @@ impl Pos {
         let Pos(x, y) = self;
         ((y * w as u32) + x) as usize
     }
+    pub fn distance(&self, other: &Pos) -> u32 {
+        (absdiff(self.0, other.0) + absdiff(self.1, other.1)) as u32
+    }
+    pub fn neighbors(&self) -> Vec<Pos> {
+        let &Pos(x, y) = self;
+        let x = x as i32;
+        let y = y as i32;
+        vec![
+            (x, y),
+            (x, y - 1),
+            (x, y + 1),
+            (x + 1, y),
+            (x + 1, y + 1),
+            (x + 1, y - 1),
+            (x - 1, y),
+            (x - 1, y - 1),
+            (x - 1, y + 1),
+        ].into_iter()
+        .filter(|(dx, dy)| *dx > 0 && *dy > 0)
+        .map(|(dx, dy)| Pos(dx as u32, dy as u32))
+        .collect()
+    }
 }
 
 impl PosDiff {
@@ -48,6 +72,7 @@ impl PosDiff {
         PosDiff(x, y)
     }
 }
+
 pub trait HasPos {
     fn pos(&self) -> &Pos;
     fn clamp(&mut self, low: (u32, u32), high: (u32, u32)) {

@@ -65,11 +65,11 @@ impl<'a> System<'a> for HunterBrainS {
                                 hunter.state = HunterState::Satisfied(hunter.laziness);
                                 target.remove(*entity);
                             }
-                            Event::MoveFailed(entity) => {
+                            Event::MoveFailed(entity, _, _) => {
                                 hunter.state = HunterState::Idle;
                                 target.remove(*entity);
-                            },
-                            _ => ()
+                            }
+                            _ => (),
                         }
                     }
                 }

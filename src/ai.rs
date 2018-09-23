@@ -1,4 +1,10 @@
-use super::{action::Turn, events::*, map::Location, pos::*};
+use super::{
+    action::Turn,
+    events::*,
+    map::{Location, *},
+    pos::*,
+};
+use pathfinding::prelude::astar;
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
@@ -23,20 +29,39 @@ impl<'a> System<'a> for AIMoveS {
         ReadStorage<'a, WalkTarget>,
         ReadStorage<'a, Location>,
         WriteStorage<'a, Turn>,
+        ReadStorage<'a, Map>,
         Write<'a, Events>,
     );
 
-    fn run(&mut self, (entities, target, pos, mut turn, mut events): Self::SystemData) {
+    fn run(&mut self, (entities, target, pos, mut turn, maps, mut events): Self::SystemData) {
         use specs::Join;
 
         for (entity, target, pos, turn) in (&*entities, &target, &pos, &mut turn).join() {
-            *turn = Turn::wait();
+            let map = maps.get(pos.map).unwrap();
 
+            *turn = Turn::wait();
             if target.pos == pos.pos {
                 events.push(Event::TargetReached(entity));
             } else {
-                let PosDiff(dx, dy) = target.diff(pos).clamp((-1, -1), (1, 1));
-                *turn = Turn::walk(dx, dy);
+                let pos = pos.pos;
+                let nextstep = astar(
+                    &pos,
+                    |p| {
+                        p.neighbors()
+                            .into_iter()
+                            .filter(|n| map.contains(*n))
+                            .map(|n| (n, if map.at(n).solid { 999 } else { 1 }))
+                    },
+                    |p| p.distance(&target.pos) / 3,
+                    |p| *p == target.pos,
+                );
+                if let Some((path, _cost)) = nextstep {
+                    let nextpos = path[1];
+                    let PosDiff(dx, dy) = nextpos.diff(&pos);
+                    *turn = Turn::walk(dx, dy);
+                } else {
+                    *turn = Turn::wait()
+                }
             }
         }
     }

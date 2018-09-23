@@ -44,7 +44,9 @@ fn main() {
     world
         .create_entity()
         .with(curses::Glyph('@'))
+        .with(energy::Energy::new(1.0))
         .with(player::PlayerBrain)
+        .with(action::Turn::default())
         .with(map::Location {
             map: map,
             pos: Pos(7, 9),

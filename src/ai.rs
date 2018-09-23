@@ -34,19 +34,7 @@ impl<'a> System<'a> for AIMoveS {
             if target.pos == pos.pos {
                 events.push(Event::TargetReached(entity));
             } else {
-                let PosDiff(mut dx, mut dy) = target.diff(pos);
-                if dx > 1 {
-                    dx = 1
-                }
-                if dx < -1 {
-                    dx = -1
-                }
-                if dy > 1 {
-                    dy = 1
-                }
-                if dy < -1 {
-                    dy = -1
-                }
+                let PosDiff(dx, dy) = target.diff(pos).clamp((-1, -1), (1, 1));
                 *turn = Turn::walk(dx, dy);
                 debug.log(format!("Turn::walk({}, {})", dx, dy));
             }

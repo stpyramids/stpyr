@@ -1,4 +1,4 @@
-use super::{map::Location, pos::*};
+use super::action::*;
 use specs::prelude::*;
 
 #[derive(Default, Component, Debug)]
@@ -13,23 +13,23 @@ impl<'a> System<'a> for PlayerMoveS {
     type SystemData = (
         Read<'a, Input>,
         ReadStorage<'a, PlayerBrain>,
-        WriteStorage<'a, Location>,
+        WriteStorage<'a, Turn>,
     );
 
-    fn run(&mut self, (input, player, mut pos): Self::SystemData) {
+    fn run(&mut self, (input, player, mut turn): Self::SystemData) {
         use specs::Join;
 
-        for (_, pos) in (&player, &mut pos).join() {
-            match input.0 {
+        for (_, turn) in (&player, &mut turn).join() {
+            *turn = match input.0 {
                 Some(ch) => match ch {
-                    'h' => pos.move_pos_xy(-1, 0),
-                    'j' => pos.move_pos_xy(0, 1),
-                    'k' => pos.move_pos_xy(0, -1),
-                    'l' => pos.move_pos_xy(1, 0),
-                    _ => (),
+                    'h' => Turn::walk(-1, 0),
+                    'j' => Turn::walk(0, 1),
+                    'k' => Turn::walk(0, -1),
+                    'l' => Turn::walk(1, 0),
+                    _ => Turn::wait(),
                 },
-                None => (),
-            }
+                None => Turn::wait(),
+            };
         }
     }
 }

@@ -4,8 +4,8 @@ use specs::{prelude::*, storage::BTreeStorage};
 #[derive(Component, Debug)]
 #[storage(BTreeStorage)]
 pub struct Map {
-    pub width: usize,
-    pub height: usize,
+    pub width: u32,
+    pub height: u32,
 }
 
 #[derive(Component, Debug)]

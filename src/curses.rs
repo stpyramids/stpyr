@@ -42,15 +42,15 @@ impl<'a> System<'a> for CursesDisplayS {
         let map = maps.get(playerpos.map).unwrap();
 
         let mut mapbuf: Vec<char> = vec![];
-        mapbuf.resize(map.width * map.height, '.');
+        mapbuf.resize((map.width * map.height) as usize, '.');
 
         for (position, glyph) in (&position, &glyph).join() {
-            let idx = position.pos_to_idx(map.width);
+            let idx = position.pos_to_idx(map.width as usize);
             mapbuf[idx] = glyph.0;
         }
 
         clear();
-        for row in mapbuf.chunks(map.width) {
+        for row in mapbuf.chunks(map.width as usize) {
             let rowstr: String = row.into_iter().collect();
             printw(&format!("{}\n", rowstr));
         }

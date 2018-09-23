@@ -36,7 +36,6 @@ impl<'a> System<'a> for AIMoveS {
             } else {
                 let PosDiff(dx, dy) = target.diff(pos).clamp((-1, -1), (1, 1));
                 *turn = Turn::walk(dx, dy);
-                debug.log(format!("Turn::walk({}, {})", dx, dy));
             }
         }
     }

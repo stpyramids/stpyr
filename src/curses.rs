@@ -15,13 +15,14 @@ impl CursesDisplayS {
         raw();
 
         keypad(stdscr(), true);
+        timeout(0);
         noecho();
     }
     pub fn finish() {
         endwin();
     }
-    pub fn getch() -> char {
-        char::from_u32(getch() as u32).unwrap()
+    pub fn getch() -> Option<char> {
+        char::from_u32(getch() as u32)
     }
 }
 
@@ -32,12 +33,17 @@ impl<'a> System<'a> for CursesDisplayS {
         ReadStorage<'a, PlayerBrain>,
         ReadStorage<'a, Map>,
         Read<'a, Events>,
+        Read<'a, GameState>,
         Write<'a, DebugLog>,
     );
 
-    fn run(&mut self, (position, glyph, player, maps, events, mut log): Self::SystemData) {
+    fn run(&mut self, (position, glyph, player, maps, events, game, mut log): Self::SystemData) {
         use specs::Join;
 
+        if !game.active() {
+            // Don't rerender except on a turn
+            return;
+        }
         let (playerpos, &_) = (&position, &player).join().next().unwrap();
         let map = maps.get(playerpos.map).unwrap();
 

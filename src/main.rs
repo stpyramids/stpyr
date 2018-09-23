@@ -34,7 +34,7 @@ fn main() {
     dispatcher.setup(&mut world.res);
 
     world.add_resource(events::Events::new());
-    world.add_resource(player::Input(None));
+    world.add_resource(player::GameState::Idle);
     let map = world
         .create_entity()
         .with(map::Map {
@@ -73,17 +73,22 @@ fn main() {
         }).build();
 
     loop {
-        dispatcher.dispatch(&mut world.res);
-        world.maintain();
-
         let ch = curses::CursesDisplayS::getch();
         match ch {
-            'q' => break,
-            other => {
-                let mut input = world.write_resource::<player::Input>();
-                *input = player::Input(Some(other));
+            Some(ch) => match ch {
+                'q' => break,
+                other => {
+                    let mut input = world.write_resource::<player::GameState>();
+                    *input = player::GameState::Active(Some(other));
+                }
+            },
+            None => {
+                let mut input = world.write_resource::<player::GameState>();
+                *input = player::GameState::Idle;
             }
-        }
+        };
+        dispatcher.dispatch(&mut world.res);
+        world.maintain();
     }
 
     curses::CursesDisplayS::finish();

@@ -1,4 +1,4 @@
-use super::{ai::WalkTarget, events::*, map::Location, player::PlayerBrain, pos::*};
+use super::{ai::WalkTarget, events::*, map::Location, player::*, pos::*};
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Component, Debug)]
@@ -26,6 +26,7 @@ pub struct HunterBrainS;
 impl<'a> System<'a> for HunterBrainS {
     type SystemData = (
         Entities<'a>,
+        Read<'a, GameState>,
         ReadStorage<'a, PlayerBrain>,
         WriteStorage<'a, HunterBrain>,
         ReadStorage<'a, Location>,
@@ -35,44 +36,44 @@ impl<'a> System<'a> for HunterBrainS {
 
     fn run(
         &mut self,
-        (entities, player, mut hunter, pos, mut target, mut events): Self::SystemData,
+        (entities, game, player, mut hunter, pos, mut target, mut events): Self::SystemData,
     ) {
         use specs::Join;
-        let mut playerpos: Option<&Pos> = None;
+        let (playerpos, &_) = (&pos, &player).join().next().unwrap();
 
-        for (_player, pos) in (&player, &pos).join() {
-            playerpos = Some(pos.pos());
+        if !game.active() {
+            return;
         }
-        match playerpos {
-            Some(playerpos) => {
-                for (entity, hunter) in (&*entities, &mut hunter).join() {
-                    match hunter.state {
-                        HunterState::Idle => {
-                            events.push(Event::HunterHunts(entity));
-                            hunter.state = HunterState::Hunting;
-                            target
-                                .insert(entity, WalkTarget { pos: *playerpos })
-                                .unwrap();
-                        }
-                        HunterState::Hunting => {
-                            for evt in &events.events {
-                                if let Event::TargetReached(entity) = evt {
-                                    hunter.state = HunterState::Satisfied(hunter.laziness);
-                                    target.remove(*entity);
-                                }
-                            }
-                        }
-                        HunterState::Satisfied(n) => {
-                            if n == 0 {
-                                hunter.state = HunterState::Idle;
-                            } else {
-                                hunter.state = HunterState::Satisfied(n - 1);
-                            }
+
+        for (entity, hunter) in (&*entities, &mut hunter).join() {
+            match hunter.state {
+                HunterState::Idle => {
+                    events.push(Event::HunterHunts(entity));
+                    hunter.state = HunterState::Hunting;
+                    target
+                        .insert(
+                            entity,
+                            WalkTarget {
+                                pos: *playerpos.pos(),
+                            },
+                        ).unwrap();
+                }
+                HunterState::Hunting => {
+                    for evt in &events.events {
+                        if let Event::TargetReached(entity) = evt {
+                            hunter.state = HunterState::Satisfied(hunter.laziness);
+                            target.remove(*entity);
                         }
                     }
                 }
+                HunterState::Satisfied(n) => {
+                    if n == 0 {
+                        hunter.state = HunterState::Idle;
+                    } else {
+                        hunter.state = HunterState::Satisfied(n - 1);
+                    }
+                }
             }
-            None => (),
         }
     }
 }

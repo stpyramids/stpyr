@@ -1,4 +1,4 @@
-use super::{energy::*, log::*, map::*, player::*, pos::*};
+use super::{energy::*, events::*, log::*, map::*, player::*, pos::*};
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
@@ -6,6 +6,7 @@ use specs::prelude::*;
 pub struct Turn {
     cost: f32,
     action: Action,
+    succeeded: bool,
 }
 
 impl Default for Turn {
@@ -13,6 +14,7 @@ impl Default for Turn {
         Turn {
             cost: 1.0,
             action: Action::Wait,
+            succeeded: false,
         }
     }
 }
@@ -31,24 +33,27 @@ impl Turn {
         Turn {
             cost: 1.0,
             action: Action::Walk(dx, dy),
+            succeeded: false,
         }
     }
 }
 pub struct TurnS;
 impl<'a> System<'a> for TurnS {
     type SystemData = (
+        Entities<'a>,
         WriteStorage<'a, Turn>,
         WriteStorage<'a, Energy>,
         WriteStorage<'a, Location>,
         ReadStorage<'a, PlayerBrain>,
         ReadStorage<'a, Map>,
+        Write<'a, Events>,
         Write<'a, DebugLog>,
     );
 
     fn run(
         &mut self,
-        (mut turns, mut energies, mut pos, player, maps, mut debug): Self::SystemData,
-    ) {
+        (entities, mut turns, mut energies, mut pos, player, maps, mut events, mut debug): Self::SystemData,
+){
         use specs::Join;
         let map: &Map;
 
@@ -57,17 +62,28 @@ impl<'a> System<'a> for TurnS {
             map = maps.get(playerpos.map).unwrap();
         }
 
-        for (turn, energy, pos) in (&mut turns, &mut energies, &mut pos).join() {
-            if energy.try_spend(turn.cost) {
+        for (entity, turn, energy, pos) in (&*entities, &mut turns, &mut energies, &mut pos).join()
+        {
+            if energy.can_spend(turn.cost) {
                 match turn.action {
-                    Action::Wait => (),
+                    Action::Wait => {
+                        turn.succeeded = true;
+                    }
                     Action::Walk(dx, dy) => {
-                        pos.move_pos_xy(dx, dy);
-                        pos.clamp((0, 0), (map.width - 1, map.height - 1));
+                        let new_pos = pos.move_pos_xy(dx, dy);
+                        let new_pos = new_pos.clamp((0, 0), (map.width - 1, map.height - 1));
+                        if !map.at(new_pos).solid {
+                            pos.set_pos(new_pos);
+                            turn.succeeded = true;
+                        }
                         debug.log(format!("{:?}", pos));
                     }
                 };
-                *turn = Turn::default();
+            }
+            if turn.succeeded {
+                energy.spend(turn.cost);
+            } else {
+                events.push(Event::MoveFailed(entity));
             }
         }
     }

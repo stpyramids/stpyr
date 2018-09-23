@@ -34,13 +34,16 @@ fn main() {
     dispatcher.setup(&mut world.res);
 
     world.add_resource(events::Events::new());
-    world.add_resource(player::GameState::Idle);
-    let map = world
-        .create_entity()
-        .with(map::Map {
-            width: 15,
-            height: 15,
-        }).build();
+    world.add_resource(player::GameState::Starting);
+    let mut firstmap = map::Map::new(15, 15);
+    for idx in vec![22, 41, 58, 76, 124, 125, 126, 127, 210, 211, 213] {
+        firstmap.tiles[idx] = map::Tile {
+            glyph: curses::Glyph('#'),
+            opaque: true,
+            solid: true,
+        };
+    }
+    let map = world.create_entity().with(firstmap).build();
     world
         .create_entity()
         .with(curses::Glyph('@'))
@@ -73,22 +76,23 @@ fn main() {
         }).build();
 
     loop {
+        dispatcher.dispatch(&mut world.res);
+        world.maintain();
+
         let ch = curses::CursesDisplayS::getch();
         match ch {
             Some(ch) => match ch {
                 'q' => break,
                 other => {
-                    let mut input = world.write_resource::<player::GameState>();
-                    *input = player::GameState::Active(Some(other));
+                    let mut state = world.write_resource::<player::GameState>();
+                    *state = player::GameState::Active(Some(other));
                 }
             },
             None => {
-                let mut input = world.write_resource::<player::GameState>();
-                *input = player::GameState::Idle;
+                let mut state = world.write_resource::<player::GameState>();
+                *state = player::GameState::Idle;
             }
         };
-        dispatcher.dispatch(&mut world.res);
-        world.maintain();
     }
 
     curses::CursesDisplayS::finish();

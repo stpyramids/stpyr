@@ -60,9 +60,16 @@ impl<'a> System<'a> for HunterBrainS {
                 }
                 HunterState::Hunting => {
                     for evt in &events.events {
-                        if let Event::TargetReached(entity) = evt {
-                            hunter.state = HunterState::Satisfied(hunter.laziness);
-                            target.remove(*entity);
+                        match evt {
+                            Event::TargetReached(entity) => {
+                                hunter.state = HunterState::Satisfied(hunter.laziness);
+                                target.remove(*entity);
+                            }
+                            Event::MoveFailed(entity) => {
+                                hunter.state = HunterState::Idle;
+                                target.remove(*entity);
+                            },
+                            _ => ()
                         }
                     }
                 }

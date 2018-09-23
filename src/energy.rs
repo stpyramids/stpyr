@@ -20,9 +20,14 @@ impl Energy {
         self.current += self.per_tick;
     }
 
-    pub fn try_spend(&mut self, amount: f32) -> bool {
+    pub fn spend(&mut self, amount: f32) {
         if self.current >= amount {
             self.current -= amount;
+        }
+    }
+
+    pub fn can_spend(&self, amount: f32) -> bool {
+        if self.current >= amount {
             true
         } else {
             false

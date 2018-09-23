@@ -36,6 +36,10 @@ impl Pos {
         let (x, y) = clamp_xy((self.0, self.1), low, high);
         Pos(x as u32, y as u32)
     }
+    pub fn to_idx(&self, w: u32) -> usize {
+        let Pos(x, y) = self;
+        ((y * w as u32) + x) as usize
+    }
 }
 
 impl PosDiff {
@@ -51,10 +55,10 @@ pub trait HasPos {
         self.set_pos(pos.clamp(low, high));
     }
     fn set_pos(&mut self, pos: Pos);
-    fn move_pos(&mut self, diff: PosDiff) {
-        self.move_pos_xy(diff.0, diff.1);
+    fn move_pos(&self, diff: PosDiff) -> Pos {
+        self.move_pos_xy(diff.0, diff.1)
     }
-    fn move_pos_xy(&mut self, dx: i32, dy: i32) {
+    fn move_pos_xy(&self, dx: i32, dy: i32) -> Pos {
         let Pos(mut x, mut y) = self.pos();
         if dx >= 0 {
             x += dx as u32;
@@ -74,11 +78,10 @@ pub trait HasPos {
                 y = 0;
             }
         }
-        self.set_pos(Pos(x, y));
+        Pos(x, y)
     }
     fn pos_to_idx(&self, w: usize) -> usize {
-        let Pos(x, y) = self.pos();
-        ((y * w as u32) + x) as usize
+        self.pos().to_idx(w as u32)
     }
     fn diff(&self, other: &HasPos) -> PosDiff {
         self.pos().diff(other.pos())

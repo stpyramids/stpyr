@@ -3,7 +3,7 @@ use ncurses::*;
 use specs::prelude::*;
 use std::char;
 
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 #[storage(VecStorage)]
 pub struct Glyph(pub char);
 
@@ -47,8 +47,12 @@ impl<'a> System<'a> for CursesDisplayS {
         let (playerpos, &_) = (&position, &player).join().next().unwrap();
         let map = maps.get(playerpos.map).unwrap();
 
-        let mut mapbuf: Vec<char> = vec![];
-        mapbuf.resize((map.width * map.height) as usize, '.');
+        let mut mapbuf: Vec<char> = map
+            .tiles
+            .as_slice()
+            .into_iter()
+            .map(|t| t.glyph.0)
+            .collect();
 
         for (position, glyph) in (&position, &glyph).join() {
             let idx = position.pos_to_idx(map.width as usize);

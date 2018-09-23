@@ -8,6 +8,7 @@ pub struct PlayerBrain;
 #[derive(Clone, Debug, PartialEq)]
 pub enum GameState {
     Idle,
+    Starting,
     Active(Option<char>),
 }
 
@@ -17,8 +18,8 @@ impl GameState {
     }
     fn input(&self) -> Option<char> {
         match self {
-            GameState::Idle => None,
             GameState::Active(opt) => *opt,
+            _ => None,
         }
     }
 }

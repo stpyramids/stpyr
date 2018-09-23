@@ -11,7 +11,7 @@ pub struct Turn {
 impl Default for Turn {
     fn default() -> Turn {
         Turn {
-            cost: 0.0,
+            cost: 1.0,
             action: Action::Wait,
         }
     }

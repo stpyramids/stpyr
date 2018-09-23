@@ -24,13 +24,14 @@ impl<'a> System<'a> for AIMoveS {
         ReadStorage<'a, Location>,
         WriteStorage<'a, Turn>,
         Write<'a, Events>,
-        Write<'a, DebugLog>,
     );
 
-    fn run(&mut self, (entities, target, pos, mut turn, mut events, mut debug): Self::SystemData) {
+    fn run(&mut self, (entities, target, pos, mut turn, mut events): Self::SystemData) {
         use specs::Join;
 
         for (entity, target, pos, turn) in (&*entities, &target, &pos, &mut turn).join() {
+            *turn = Turn::wait();
+
             if target.pos == pos.pos {
                 events.push(Event::TargetReached(entity));
             } else {

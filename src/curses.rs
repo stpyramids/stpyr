@@ -72,7 +72,6 @@ impl<'a> System<'a> for CursesDisplayS {
             let rowstr: String = row.into_iter().collect();
             printw(&format!("{}\n", rowstr));
         }
-        printw(&format!("{:?}", fov.visible));
         for evt in &events.events {
             printw(&format!("EVENT: {:?}\n", evt));
         }

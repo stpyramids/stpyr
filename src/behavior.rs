@@ -1,4 +1,4 @@
-use super::{ai::WalkTarget, events::*, map::Location, player::*, pos::*};
+use super::{ai::WalkTarget, events::*, fov::*, map::Location, player::*, pos::*};
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Component, Debug)]
@@ -30,33 +30,35 @@ impl<'a> System<'a> for HunterBrainS {
         ReadStorage<'a, PlayerBrain>,
         WriteStorage<'a, HunterBrain>,
         ReadStorage<'a, Location>,
+        ReadStorage<'a, FovMap>,
         WriteStorage<'a, WalkTarget>,
         Write<'a, Events>,
     );
 
     fn run(
         &mut self,
-        (entities, game, player, mut hunter, pos, mut target, mut events): Self::SystemData,
+        (entities, game, player, mut hunter, pos, fovs, mut target, mut events): Self::SystemData,
     ) {
         use specs::Join;
         let (playerpos, &_) = (&pos, &player).join().next().unwrap();
+        let playerpos = *playerpos.pos();
 
         if !game.active() {
             return;
         }
 
-        for (entity, hunter) in (&*entities, &mut hunter).join() {
+        for (entity, hunter, fov) in (&*entities, &mut hunter, &fovs).join() {
             match hunter.state {
                 HunterState::Idle => {
-                    events.push(Event::HunterHunts(entity));
-                    hunter.state = HunterState::Hunting;
-                    target
-                        .insert(
-                            entity,
-                            WalkTarget {
-                                pos: *playerpos.pos(),
-                            },
-                        ).unwrap();
+                    if fov.visible(playerpos) {
+                        events.push(Event::HunterHunts(entity));
+                        hunter.state = HunterState::Hunting;
+                        target
+                            .insert(entity, WalkTarget { pos: playerpos })
+                            .unwrap();
+                    } else {
+                        hunter.state = HunterState::Satisfied(hunter.laziness);
+                    }
                 }
                 HunterState::Hunting => {
                     for evt in &events.events {

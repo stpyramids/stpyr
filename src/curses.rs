@@ -55,20 +55,20 @@ impl<'a> System<'a> for CursesDisplayS {
 
         let mut mapbuf: Vec<char> = map
             .tiles
-            .as_slice()
-            .into_iter()
-            .map(|t| t.glyph.0)
+            .iter()
+            .enumerate()
+            .map(|(idx, t)| if fov.visible[idx] { t.glyph.0 } else { ' ' })
             .collect();
 
         for (position, glyph) in (&position, &glyph).join() {
-            let idx = position.pos_to_idx(map.width as usize);
+            let idx = position.pos_to_idx(map.tiles.width as usize);
             if fov.visible(position.pos) {
                 mapbuf[idx] = glyph.0;
             }
         }
 
         clear();
-        for row in mapbuf.chunks(map.width as usize) {
+        for row in mapbuf.chunks(map.tiles.width as usize) {
             let rowstr: String = row.into_iter().collect();
             printw(&format!("{}\n", rowstr));
         }

@@ -72,7 +72,8 @@ impl<'a> System<'a> for TurnS {
                     }
                     Action::Walk(dx, dy) => {
                         let new_pos = pos.move_pos_xy(dx, dy);
-                        let new_pos = new_pos.clamp((0, 0), (map.width - 1, map.height - 1));
+                        let new_pos =
+                            new_pos.clamp((0, 0), (map.tiles.width - 1, map.tiles.height - 1));
                         if map.at(new_pos).solid {
                             events.push(Event::MoveFailed(entity, dx, dy));
                         } else {

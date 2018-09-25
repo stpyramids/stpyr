@@ -16,6 +16,7 @@ pub mod log;
 pub mod map;
 pub mod player;
 pub mod pos;
+pub mod grid;
 
 use self::pos::*;
 use specs::prelude::{Builder, DispatcherBuilder, World};

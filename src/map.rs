@@ -1,4 +1,4 @@
-use super::{curses::Glyph, pos::*};
+use super::{curses::Glyph, grid::*, pos::*};
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Debug, Clone)]
@@ -11,31 +11,28 @@ pub struct Tile {
 #[derive(Component, Debug)]
 #[storage(BTreeStorage)]
 pub struct TileMap {
-    pub width: u32,
-    pub height: u32,
-    pub tiles: Vec<Tile>,
+    pub tiles: Grid<Tile>,
 }
 
 impl TileMap {
     pub fn new(width: u32, height: u32) -> TileMap {
         TileMap {
-            width,
-            height,
-            tiles: vec![
+            tiles: Grid::new(
+                width,
+                height,
                 Tile {
                     glyph: Glyph('.'),
                     solid: false,
-                    opaque: false
-                };
-                (width * height + 1) as usize
-            ],
+                    opaque: false,
+                },
+            ),
         }
     }
     pub fn at(&self, pos: Pos) -> &Tile {
-        &self.tiles[pos.to_idx(self.width)]
+        self.tiles.at(pos)
     }
     pub fn contains(&self, pos: Pos) -> bool {
-        pos.0 < self.width && pos.1 < self.height
+        self.tiles.contains(pos)
     }
 }
 

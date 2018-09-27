@@ -12,11 +12,12 @@ pub mod curses;
 pub mod energy;
 pub mod events;
 pub mod fov;
+pub mod grid;
 pub mod log;
 pub mod map;
+pub mod movement;
 pub mod player;
 pub mod pos;
-pub mod grid;
 
 use self::pos::*;
 use specs::prelude::{Builder, DispatcherBuilder, World};
@@ -38,7 +39,8 @@ fn run_game() {
     let mut world = World::new();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(fov::FovS, "fov", &[])
+        .with(movement::MovementS, "movement", &[])
+        .with(fov::FovS, "fov", &["movement"])
         .with(energy::EnergyS, "energy", &["fov"])
         .with(behavior::HunterBrainS, "hunter_brain", &["energy"])
         .with(ai::AIMoveS, "ai_move", &["hunter_brain"])
@@ -70,6 +72,7 @@ fn run_game() {
             map: map,
             pos: Pos(7, 9),
         }).with(fov::FovMap::default())
+        .with(movement::MovementMap::default())
         .build();
     world
         .create_entity()
@@ -81,6 +84,7 @@ fn run_game() {
             map: map,
             pos: Pos(1, 1),
         }).with(fov::FovMap::default())
+        .with(movement::MovementMap::default())
         .build();
     world
         .create_entity()
@@ -92,6 +96,7 @@ fn run_game() {
             map: map,
             pos: Pos(13, 12),
         }).with(fov::FovMap::default())
+        .with(movement::MovementMap::default())
         .build();
 
     loop {

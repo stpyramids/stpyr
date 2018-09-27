@@ -13,10 +13,10 @@ Experimenting with roguelike implementation in Rust, using the `specs` Entity-Co
 - a `@` that can move around
 - NPCs that follow the `@` around
 - Occluding terrain outside of FOV
+- Critters filling space
 
 ## Todo
 
-- Critters filling space
 - Any commands other than movement
 - Stats
 - Combat

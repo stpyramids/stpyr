@@ -1,4 +1,4 @@
-use super::{energy::*, events::*, log::*, map::*, player::*, pos::*};
+use super::{energy::*, events::*, log::*, map::*, movement::*, pos::*};
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
@@ -44,25 +44,19 @@ impl<'a> System<'a> for TurnS {
         WriteStorage<'a, Turn>,
         WriteStorage<'a, Energy>,
         WriteStorage<'a, Location>,
-        ReadStorage<'a, PlayerBrain>,
-        ReadStorage<'a, TileMap>,
+        WriteStorage<'a, MovementMap>,
         Write<'a, Events>,
         Write<'a, DebugLog>,
     );
 
     fn run(
         &mut self,
-        (entities, mut turns, mut energies, mut pos, player, maps, mut events, mut debug): Self::SystemData,
+        (entities, mut turns, mut energies, mut pos, movemaps, mut events, mut debug): Self::SystemData,
 ){
         use specs::Join;
-        let map: &TileMap;
 
-        {
-            let (playerpos, &_) = (&mut pos, &player).join().next().unwrap();
-            map = maps.get(playerpos.map).unwrap();
-        }
-
-        for (entity, turn, energy, pos) in (&*entities, &mut turns, &mut energies, &mut pos).join()
+        for (entity, turn, energy, pos, movemap) in
+            (&*entities, &mut turns, &mut energies, &mut pos, &movemaps).join()
         {
             if energy.can_spend(turn.cost) {
                 debug.log(format!("{:?}", turn));
@@ -73,8 +67,8 @@ impl<'a> System<'a> for TurnS {
                     Action::Walk(dx, dy) => {
                         let new_pos = pos.move_pos_xy(dx, dy);
                         let new_pos =
-                            new_pos.clamp((0, 0), (map.tiles.width - 1, map.tiles.height - 1));
-                        if map.at(new_pos).solid {
+                            new_pos.clamp((0, 0), (movemap.0.width - 1, movemap.0.height - 1));
+                        if movemap.blocked(new_pos) {
                             events.push(Event::MoveFailed(entity, dx, dy));
                         } else {
                             pos.set_pos(new_pos);

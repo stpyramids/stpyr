@@ -4,7 +4,7 @@ use specs::{prelude::*, storage::BTreeStorage};
 #[derive(Component, Debug)]
 #[storage(BTreeStorage)]
 pub struct HunterBrain {
-    state: HunterState,
+    state:    HunterState,
     laziness: u32,
 }
 #[derive(Debug)]
@@ -67,7 +67,7 @@ impl<'a> System<'a> for HunterBrainS {
                                 hunter.state = HunterState::Satisfied(hunter.laziness);
                                 target.remove(*entity);
                             }
-                            Event::MoveFailed(entity, _, _) => {
+                            Event::MoveFailed(entity, ..) => {
                                 hunter.state = HunterState::Idle;
                                 target.remove(*entity);
                             }

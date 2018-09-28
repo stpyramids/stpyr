@@ -3,8 +3,8 @@ use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Debug, Clone)]
 pub struct Tile {
-    pub glyph: Glyph,
-    pub solid: bool,
+    pub glyph:  Glyph,
+    pub solid:  bool,
     pub opaque: bool,
 }
 
@@ -21,19 +21,17 @@ impl TileMap {
                 width,
                 height,
                 Tile {
-                    glyph: Glyph('.'),
-                    solid: false,
+                    glyph:  Glyph('.'),
+                    solid:  false,
                     opaque: false,
                 },
             ),
         }
     }
-    pub fn at(&self, pos: Pos) -> &Tile {
-        self.tiles.at(pos)
-    }
-    pub fn contains(&self, pos: Pos) -> bool {
-        self.tiles.contains(pos)
-    }
+
+    pub fn at(&self, pos: Pos) -> &Tile { self.tiles.at(pos) }
+
+    pub fn contains(&self, pos: Pos) -> bool { self.tiles.contains(pos) }
 }
 
 #[derive(Component, Debug)]
@@ -44,10 +42,7 @@ pub struct Location {
 }
 
 impl HasPos for Location {
-    fn pos(&self) -> &Pos {
-        &self.pos
-    }
-    fn set_pos(&mut self, pos: Pos) {
-        self.pos = pos;
-    }
+    fn pos(&self) -> &Pos { &self.pos }
+
+    fn set_pos(&mut self, pos: Pos) { self.pos = pos; }
 }

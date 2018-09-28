@@ -13,9 +13,8 @@ pub enum GameState {
 }
 
 impl GameState {
-    pub fn active(&self) -> bool {
-        *self != GameState::Idle
-    }
+    pub fn active(&self) -> bool { *self != GameState::Idle }
+
     fn input(&self) -> Option<char> {
         match self {
             GameState::Active(opt) => *opt,
@@ -24,9 +23,7 @@ impl GameState {
     }
 }
 impl Default for GameState {
-    fn default() -> GameState {
-        GameState::Idle
-    }
+    fn default() -> GameState { GameState::Idle }
 }
 
 pub struct PlayerMoveS;

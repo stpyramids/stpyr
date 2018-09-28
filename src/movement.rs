@@ -14,15 +14,14 @@ pub enum Blockage {
 pub struct MovementMap(pub Grid<Blockage>);
 
 impl Default for MovementMap {
-    fn default() -> MovementMap {
-        MovementMap::new(1, 1)
-    }
+    fn default() -> MovementMap { MovementMap::new(1, 1) }
 }
 
 impl MovementMap {
     pub fn new(width: u32, height: u32) -> MovementMap {
         MovementMap(Grid::new(width, height, Blockage::Open))
     }
+
     pub fn new_for_map(map: &TileMap) -> MovementMap {
         let mut fov = MovementMap::new(map.tiles.width, map.tiles.height);
         for (idx, tile) in map.tiles.iter().enumerate() {
@@ -32,12 +31,10 @@ impl MovementMap {
         }
         fov
     }
-    pub fn at(&self, pos: Pos) -> Blockage {
-        self.0.at(pos).to_owned()
-    }
-    pub fn blocked(&self, pos: Pos) -> bool {
-        *self.0.at(pos) != Blockage::Open
-    }
+
+    pub fn at(&self, pos: Pos) -> Blockage { self.0.at(pos).to_owned() }
+
+    pub fn blocked(&self, pos: Pos) -> bool { *self.0.at(pos) != Blockage::Open }
 }
 
 pub struct MovementS;

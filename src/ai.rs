@@ -14,12 +14,9 @@ pub struct WalkTarget {
 }
 
 impl HasPos for WalkTarget {
-    fn pos(&self) -> &Pos {
-        &self.pos
-    }
-    fn set_pos(&mut self, pos: Pos) {
-        self.pos = pos;
-    }
+    fn pos(&self) -> &Pos { &self.pos }
+
+    fn set_pos(&mut self, pos: Pos) { self.pos = pos; }
 }
 
 pub struct AIMoveS;

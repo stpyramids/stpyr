@@ -9,28 +9,26 @@ pub enum Event {
 
 #[derive(Default)]
 pub struct Events {
-    pub events: Vec<Event>,
+    pub events:  Vec<Event>,
     next_events: Vec<Event>,
 }
 
 impl Events {
     pub fn new() -> Self {
         Events {
-            events: vec![],
+            events:      vec![],
             next_events: vec![],
         }
     }
 
     pub fn pump(&self) -> Self {
         Events {
-            events: self.next_events.to_vec(),
+            events:      self.next_events.to_vec(),
             next_events: vec![],
         }
     }
 
-    pub fn push(&mut self, e: Event) {
-        self.next_events.push(e);
-    }
+    pub fn push(&mut self, e: Event) { self.next_events.push(e); }
 }
 
 pub struct EventPumpS;

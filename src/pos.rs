@@ -34,17 +34,21 @@ impl Pos {
             self.1 as i32 - other.1 as i32,
         )
     }
+
     pub fn clamp(&self, low: (u32, u32), high: (u32, u32)) -> Pos {
         let (x, y) = clamp_xy((self.0, self.1), low, high);
         Pos(x as u32, y as u32)
     }
+
     pub fn to_idx(&self, w: u32) -> usize {
         let Pos(x, y) = self;
         ((y * w as u32) + x) as usize
     }
+
     pub fn distance(&self, other: &Pos) -> u32 {
         (absdiff(self.0, other.0) + absdiff(self.1, other.1)) as u32
     }
+
     pub fn neighbors(&self) -> Vec<Pos> {
         let &Pos(x, y) = self;
         let x = x as i32;
@@ -80,9 +84,7 @@ pub trait HasPos {
         self.set_pos(pos.clamp(low, high));
     }
     fn set_pos(&mut self, pos: Pos);
-    fn move_pos(&self, diff: PosDiff) -> Pos {
-        self.move_pos_xy(diff.0, diff.1)
-    }
+    fn move_pos(&self, diff: PosDiff) -> Pos { self.move_pos_xy(diff.0, diff.1) }
     fn move_pos_xy(&self, dx: i32, dy: i32) -> Pos {
         let Pos(mut x, mut y) = self.pos();
         if dx >= 0 {
@@ -105,10 +107,6 @@ pub trait HasPos {
         }
         Pos(x, y)
     }
-    fn pos_to_idx(&self, w: usize) -> usize {
-        self.pos().to_idx(w as u32)
-    }
-    fn diff(&self, other: &HasPos) -> PosDiff {
-        self.pos().diff(other.pos())
-    }
+    fn pos_to_idx(&self, w: usize) -> usize { self.pos().to_idx(w as u32) }
+    fn diff(&self, other: &HasPos) -> PosDiff { self.pos().diff(other.pos()) }
 }

@@ -18,12 +18,10 @@ impl CursesDisplayS {
         timeout(0);
         noecho();
     }
-    pub fn finish() {
-        endwin();
-    }
-    pub fn getch() -> Option<char> {
-        char::from_u32(getch() as u32)
-    }
+
+    pub fn finish() { endwin(); }
+
+    pub fn getch() -> Option<char> { char::from_u32(getch() as u32) }
 }
 
 impl<'a> System<'a> for CursesDisplayS {

@@ -5,16 +5,14 @@ use specs::{prelude::*, storage::BTreeStorage};
 #[derive(Debug, Component)]
 #[storage(BTreeStorage)]
 pub struct FovMap {
-    pub width: u32,
-    pub height: u32,
+    pub width:   u32,
+    pub height:  u32,
     pub blocked: Grid<bool>,
     pub visible: Grid<bool>,
 }
 
 impl Default for FovMap {
-    fn default() -> FovMap {
-        FovMap::new(1, 1)
-    }
+    fn default() -> FovMap { FovMap::new(1, 1) }
 }
 
 impl FovMap {
@@ -26,6 +24,7 @@ impl FovMap {
             visible: Grid::new(width, height, true),
         }
     }
+
     pub fn new_for_map(map: &TileMap) -> FovMap {
         let mut fov = FovMap::new(map.tiles.width, map.tiles.height);
         for (idx, tile) in map.tiles.iter().enumerate() {
@@ -33,15 +32,13 @@ impl FovMap {
         }
         fov
     }
-    pub fn visible(&self, pos: Pos) -> bool {
-        *self.visible.at(pos)
-    }
-    pub fn blocked(&self, pos: Pos) -> bool {
-        *self.blocked.at(pos)
-    }
-    pub fn contains(&self, pos: Pos) -> bool {
-        pos.0 < self.width && pos.1 < self.height
-    }
+
+    pub fn visible(&self, pos: Pos) -> bool { *self.visible.at(pos) }
+
+    pub fn blocked(&self, pos: Pos) -> bool { *self.blocked.at(pos) }
+
+    pub fn contains(&self, pos: Pos) -> bool { pos.0 < self.width && pos.1 < self.height }
+
     pub fn compute(&mut self, pov: Pos) {
         let Pos(px, py) = pov;
         for lx in 0..self.width {

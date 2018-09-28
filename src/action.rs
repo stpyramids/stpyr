@@ -1,19 +1,19 @@
-use super::{energy::*, events::*, log::*, map::*, movement::*, pos::*};
+use super::{energy::*, events::*, log::*, map::*, movement::*, player::*, pos::*};
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
 #[storage(VecStorage)]
 pub struct Turn {
-    cost: f32,
-    action: Action,
+    cost:      f32,
+    action:    Action,
     succeeded: bool,
 }
 
 impl Default for Turn {
     fn default() -> Turn {
         Turn {
-            cost: 1.0,
-            action: Action::Wait,
+            cost:      1.0,
+            action:    Action::Wait,
             succeeded: false,
         }
     }
@@ -26,17 +26,17 @@ pub enum Action {
 }
 
 impl Turn {
-    pub fn wait() -> Turn {
-        Turn::default()
-    }
+    pub fn wait() -> Turn { Turn::default() }
+
     pub fn walk(dx: i32, dy: i32) -> Turn {
         Turn {
-            cost: 1.0,
-            action: Action::Walk(dx, dy),
+            cost:      1.0,
+            action:    Action::Walk(dx, dy),
             succeeded: false,
         }
     }
 }
+
 pub struct TurnS;
 impl<'a> System<'a> for TurnS {
     type SystemData = (
@@ -81,5 +81,22 @@ impl<'a> System<'a> for TurnS {
                 energy.spend(turn.cost);
             }
         }
+    }
+}
+
+#[derive(Default, Component, Debug)]
+#[storage(NullStorage)]
+pub struct ActiveActor;
+
+pub struct ActiveActorS;
+impl<'a> System<'a> for ActiveActorS {
+    type SystemData = (
+        Entities<'a>,
+        ReadStorage<'a, Turn>,
+        ReadStorage<'a, Location>,
+        ReadStorage<'a, PlayerBrain>,
+    );
+
+    fn run(&mut self, (entities, turns, locations, players): Self::SystemData) {
     }
 }

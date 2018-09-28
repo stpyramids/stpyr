@@ -56,9 +56,9 @@ fn run_game() {
     let mut firstmap = map::TileMap::new(15, 15);
     for idx in vec![22, 41, 58, 76, 124, 125, 126, 127, 210, 211, 213] {
         firstmap.tiles[idx] = map::Tile {
-            glyph: curses::Glyph('#'),
+            glyph:  curses::Glyph('#'),
             opaque: true,
-            solid: true,
+            solid:  true,
         };
     }
     let map = world.create_entity().with(firstmap).build();
@@ -69,7 +69,7 @@ fn run_game() {
         .with(player::PlayerBrain)
         .with(action::Turn::default())
         .with(map::Location {
-            map: map,
+            map,
             pos: Pos(7, 9),
         }).with(fov::FovMap::default())
         .with(movement::MovementMap::default())
@@ -81,7 +81,7 @@ fn run_game() {
         .with(action::Turn::wait())
         .with(behavior::HunterBrain::new(1))
         .with(map::Location {
-            map: map,
+            map,
             pos: Pos(1, 1),
         }).with(fov::FovMap::default())
         .with(movement::MovementMap::default())
@@ -93,7 +93,7 @@ fn run_game() {
         .with(action::Turn::wait())
         .with(behavior::HunterBrain::new(3))
         .with(map::Location {
-            map: map,
+            map,
             pos: Pos(13, 12),
         }).with(fov::FovMap::default())
         .with(movement::MovementMap::default())

@@ -41,6 +41,7 @@ pub struct TurnS;
 impl<'a> System<'a> for TurnS {
     type SystemData = (
         Entities<'a>,
+        ReadStorage<'a, ActiveFlag>,
         WriteStorage<'a, Turn>,
         WriteStorage<'a, Energy>,
         WriteStorage<'a, Location>,
@@ -51,12 +52,19 @@ impl<'a> System<'a> for TurnS {
 
     fn run(
         &mut self,
-        (entities, mut turns, mut energies, mut pos, movemaps, mut events, mut debug): Self::SystemData,
+        (entities, actives, mut turns, mut energies, mut pos, movemaps, mut events, mut debug): Self::SystemData,
 ){
         use specs::Join;
 
-        for (entity, turn, energy, pos, movemap) in
-            (&*entities, &mut turns, &mut energies, &mut pos, &movemaps).join()
+        for (entity, _, turn, energy, pos, movemap) in (
+            &*entities,
+            &actives,
+            &mut turns,
+            &mut energies,
+            &mut pos,
+            &movemaps,
+        )
+            .join()
         {
             if energy.can_spend(turn.cost) {
                 debug.log(format!("{:?}", turn));
@@ -86,17 +94,26 @@ impl<'a> System<'a> for TurnS {
 
 #[derive(Default, Component, Debug)]
 #[storage(NullStorage)]
-pub struct ActiveActor;
+pub struct ActiveFlag;
 
-pub struct ActiveActorS;
-impl<'a> System<'a> for ActiveActorS {
+pub struct ActiveS;
+impl<'a> System<'a> for ActiveS {
     type SystemData = (
         Entities<'a>,
         ReadStorage<'a, Turn>,
         ReadStorage<'a, Location>,
         ReadStorage<'a, PlayerBrain>,
+        WriteStorage<'a, ActiveFlag>,
     );
 
-    fn run(&mut self, (entities, turns, locations, players): Self::SystemData) {
+    fn run(&mut self, (entities, turns, locations, players, mut actives): Self::SystemData) {
+        use specs::Join;
+        let currentmap = (&locations, &players).join().next().unwrap().0.map;
+
+        for (entity, location, ..) in (&*entities, &locations, &turns).join() {
+            if location.map == currentmap {
+                actives.insert(entity, ActiveFlag).unwrap();
+            }
+        }
     }
 }

@@ -1,9 +1,4 @@
-use super::{
-    action::Turn,
-    events::*,
-    map::{Location, *},
-    pos::*,
-};
+use super::{action::*, events::*, map::*, pos::*};
 use pathfinding::prelude::astar;
 use specs::prelude::*;
 
@@ -24,16 +19,22 @@ impl<'a> System<'a> for AIMoveS {
     type SystemData = (
         Entities<'a>,
         ReadStorage<'a, WalkTarget>,
+        ReadStorage<'a, ActiveFlag>,
         ReadStorage<'a, Location>,
         WriteStorage<'a, Turn>,
         ReadStorage<'a, TileMap>,
         Write<'a, Events>,
     );
 
-    fn run(&mut self, (entities, target, pos, mut turn, maps, mut events): Self::SystemData) {
+    fn run(
+        &mut self,
+        (entities, target, actives, pos, mut turn, maps, mut events): Self::SystemData,
+    ) {
         use specs::Join;
 
-        for (entity, target, pos, turn) in (&*entities, &target, &pos, &mut turn).join() {
+        for (entity, target, pos, turn, ..) in
+            (&*entities, &target, &pos, &mut turn, &actives).join()
+        {
             let map = maps.get(pos.map).unwrap();
 
             *turn = Turn::wait();

@@ -1,4 +1,4 @@
-use super::{grid::*, map::*, pos::*};
+use super::{action::*, grid::*, map::*, pos::*};
 use line_drawing::Bresenham;
 use specs::{prelude::*, storage::BTreeStorage};
 
@@ -59,13 +59,14 @@ impl<'a> System<'a> for FovS {
     type SystemData = (
         WriteStorage<'a, FovMap>,
         ReadStorage<'a, Location>,
+        ReadStorage<'a, ActiveFlag>,
         ReadStorage<'a, TileMap>,
     );
 
-    fn run(&mut self, (mut fovs, locs, maps): Self::SystemData) {
+    fn run(&mut self, (mut fovs, locs, actives, maps): Self::SystemData) {
         use specs::Join;
 
-        for (fov, loc) in (&mut fovs, &locs).join() {
+        for (fov, loc, ..) in (&mut fovs, &locs, &actives).join() {
             let map = maps.get(loc.map).unwrap();
             let mut newfov = FovMap::new_for_map(&map);
             newfov.compute(loc.pos);

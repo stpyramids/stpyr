@@ -1,4 +1,4 @@
-use super::{ai::WalkTarget, events::*, fov::*, map::Location, player::*, pos::*};
+use super::{action::*, ai::*, events::*, fov::*, map::*, player::*, pos::*};
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Component, Debug)]
@@ -30,6 +30,7 @@ impl<'a> System<'a> for HunterBrainS {
         ReadStorage<'a, PlayerBrain>,
         WriteStorage<'a, HunterBrain>,
         ReadStorage<'a, Location>,
+        ReadStorage<'a, ActiveFlag>,
         ReadStorage<'a, FovMap>,
         WriteStorage<'a, WalkTarget>,
         Write<'a, Events>,
@@ -37,8 +38,8 @@ impl<'a> System<'a> for HunterBrainS {
 
     fn run(
         &mut self,
-        (entities, game, player, mut hunter, pos, fovs, mut target, mut events): Self::SystemData,
-    ) {
+        (entities, game, player, mut hunter, pos, actives, fovs, mut target, mut events): Self::SystemData,
+){
         use specs::Join;
         let (playerpos, &_) = (&pos, &player).join().next().unwrap();
         let playerpos = *playerpos.pos();
@@ -47,7 +48,7 @@ impl<'a> System<'a> for HunterBrainS {
             return;
         }
 
-        for (entity, hunter, fov) in (&*entities, &mut hunter, &fovs).join() {
+        for (entity, hunter, fov, ..) in (&*entities, &mut hunter, &fovs, &actives).join() {
             match hunter.state {
                 HunterState::Idle => {
                     if fov.visible(playerpos) {

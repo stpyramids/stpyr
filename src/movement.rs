@@ -1,4 +1,4 @@
-use super::{grid::*, map::*, pos::*};
+use super::{action::*, grid::*, map::*, pos::*};
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -42,13 +42,14 @@ impl<'a> System<'a> for MovementS {
     type SystemData = (
         WriteStorage<'a, MovementMap>,
         ReadStorage<'a, Location>,
+        ReadStorage<'a, ActiveFlag>,
         ReadStorage<'a, TileMap>,
     );
 
-    fn run(&mut self, (mut movemaps, locs, maps): Self::SystemData) {
+    fn run(&mut self, (mut movemaps, locs, actives, maps): Self::SystemData) {
         use specs::Join;
 
-        for (movemap, loc) in (&mut movemaps, &locs).join() {
+        for (movemap, loc, ..) in (&mut movemaps, &locs, &actives).join() {
             let map = maps.get(loc.map).unwrap();
             let mut newmovemap = MovementMap::new_for_map(&map);
 

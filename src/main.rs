@@ -20,7 +20,7 @@ pub mod player;
 pub mod pos;
 
 use self::pos::*;
-use specs::prelude::{Builder, DispatcherBuilder, World};
+use specs::prelude::*;
 
 fn main() {
     let default_panic = std::panic::take_hook();
@@ -33,11 +33,35 @@ fn main() {
     curses::CursesDisplayS::finish();
 }
 
+fn make_actor(
+    world: &mut World,
+    map: Entity,
+    glyph: char,
+    speed: f32,
+    pos: Pos,
+    extra: fn(EntityBuilder) -> EntityBuilder,
+) {
+    let builder = world
+        .create_entity()
+        .with(curses::Glyph(glyph))
+        .with(energy::Energy::new(speed))
+        .with(action::Turn::default())
+        .with(map::Location { map, pos })
+        .with(fov::FovMap::default())
+        .with(movement::MovementMap::default());
+    extra(builder).build();
+}
+
+fn make_player(world: &mut World, map: Entity) {
+    make_actor(world, map, '@', 1.0, Pos(7, 9), |builder| {
+        builder.with(player::PlayerBrain)
+    });
+}
+
 fn run_game() {
     curses::CursesDisplayS::init();
 
     let mut world = World::new();
-
     let mut dispatcher = DispatcherBuilder::new()
         .with(action::ActiveS, "active", &[])
         .with(movement::MovementS, "movement", &["active"])
@@ -54,6 +78,7 @@ fn run_game() {
 
     world.add_resource(events::Events::new());
     world.add_resource(player::GameState::Starting);
+
     let mut firstmap = map::TileMap::new(15, 15);
     for idx in vec![22, 41, 58, 76, 124, 125, 126, 127, 210, 211, 213] {
         firstmap.tiles[idx] = map::Tile {
@@ -63,42 +88,10 @@ fn run_game() {
         };
     }
     let map = world.create_entity().with(firstmap).build();
-    world
-        .create_entity()
-        .with(curses::Glyph('@'))
-        .with(energy::Energy::new(1.0))
-        .with(player::PlayerBrain)
-        .with(action::Turn::default())
-        .with(map::Location {
-            map,
-            pos: Pos(7, 9),
-        }).with(fov::FovMap::default())
-        .with(movement::MovementMap::default())
-        .build();
-    world
-        .create_entity()
-        .with(curses::Glyph('s'))
-        .with(energy::Energy::new(0.2))
-        .with(action::Turn::wait())
-        .with(behavior::HunterBrain::new(1))
-        .with(map::Location {
-            map,
-            pos: Pos(1, 1),
-        }).with(fov::FovMap::default())
-        .with(movement::MovementMap::default())
-        .build();
-    world
-        .create_entity()
-        .with(curses::Glyph('c'))
-        .with(energy::Energy::new(1.1))
-        .with(action::Turn::wait())
-        .with(behavior::HunterBrain::new(3))
-        .with(map::Location {
-            map,
-            pos: Pos(13, 12),
-        }).with(fov::FovMap::default())
-        .with(movement::MovementMap::default())
-        .build();
+
+    make_player(&mut world, map);
+    make_actor(&mut world, map, 's', 0.2, Pos(1, 1), |b| b);
+    make_actor(&mut world, map, 'c', 1.1, Pos(13, 12), |b| b);
 
     loop {
         dispatcher.dispatch(&mut world.res);

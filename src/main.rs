@@ -1,5 +1,4 @@
 extern crate specs;
-#[macro_use]
 extern crate specs_derive;
 extern crate stpyrl;
 
@@ -74,8 +73,12 @@ fn run_game() {
     let map = world.create_entity().with(firstmap).build();
 
     make_player(&mut world, map);
-    make_actor(&mut world, map, 's', 0.2, Pos(1, 1), |b| b);
-    make_actor(&mut world, map, 'c', 1.1, Pos(13, 12), |b| b);
+    make_actor(&mut world, map, 's', 0.2, Pos(1, 1), |b| {
+        b.with(behavior::HunterBrain::new(1))
+    });
+    make_actor(&mut world, map, 'c', 1.1, Pos(13, 12), |b| {
+        b.with(behavior::HunterBrain::new(3))
+    });
 
     loop {
         dispatcher.dispatch(&mut world.res);

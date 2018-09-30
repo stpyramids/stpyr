@@ -11,6 +11,12 @@ pub struct Grid<T> {
     grid:       Vec<T>,
 }
 
+#[derive(Debug)]
+pub enum BlitError {
+    OutOfBounds,
+    TooLarge,
+}
+
 impl<T> Grid<T>
 where
     T: Clone,
@@ -30,6 +36,29 @@ where
     pub fn contains(&self, pos: Pos) -> bool { pos.0 < self.width && pos.1 < self.height }
 
     pub fn iter(&self) -> Iter<T> { self.grid.iter() }
+
+    fn pos_to_idx(&self, pos: Pos) -> usize { pos.to_idx(self.width) }
+
+    fn idx_to_pos(&self, idx: usize) -> Pos {
+        let idx = idx as u32;
+        let x = idx % self.width;
+        let y = idx / self.width;
+        Pos(x, y)
+    }
+
+    pub fn blit(&mut self, x: u32, y: u32, other: &Self) -> Result<(), BlitError> {
+        if !self.contains(Pos(x, y)) {
+            return Result::Err(BlitError::OutOfBounds);
+        }
+        if !self.contains(Pos(x + other.width, y + other.height)) {
+            return Result::Err(BlitError::TooLarge);
+        }
+        for (idx, entry) in other.grid.iter().enumerate() {
+            let pos = other.idx_to_pos(idx);
+            self.set(Pos(x + pos.0, y + pos.1), entry.clone());
+        }
+        Result::Ok(())
+    }
 }
 
 impl<T> Index<usize> for Grid<T> {

@@ -62,14 +62,19 @@ fn run_game() {
     world.add_resource(events::Events::new());
     world.add_resource(player::GameState::Starting);
 
-    let mut firstmap = map::TileMap::new(15, 15);
-    for idx in vec![22, 41, 58, 76, 124, 125, 126, 127, 210, 211, 213] {
-        firstmap.tiles[idx] = map::Tile {
+    let mut vault = map::TileMap::new(12, 12);
+    for idx in vec![22, 41, 58, 76, 124, 125, 126, 127] {
+        vault.tiles[idx] = map::Tile {
             glyph:  curses::Glyph('#'),
             opaque: true,
             solid:  true,
         };
     }
+    let mut firstmap = map::TileMap::new(40, 20);
+    firstmap
+        .tiles
+        .blit(5, 5, &vault.tiles)
+        .expect("couldn't place vault");
     let map = world.create_entity().with(firstmap).build();
 
     make_player(&mut world, map);

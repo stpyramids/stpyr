@@ -9,6 +9,10 @@ pub enum Blockage {
     Player,
 }
 
+impl Default for Blockage {
+    fn default() -> Self { Blockage::Open }
+}
+
 #[derive(Debug, Component)]
 #[storage(BTreeStorage)]
 pub struct MovementMap(pub Grid<Blockage>);

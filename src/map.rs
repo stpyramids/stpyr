@@ -8,6 +8,16 @@ pub struct Tile {
     pub opaque: bool,
 }
 
+impl Default for Tile {
+    fn default() -> Tile {
+        Tile {
+            glyph:  Glyph('.'),
+            solid:  false,
+            opaque: false,
+        }
+    }
+}
+
 #[derive(Component, Debug)]
 #[storage(BTreeStorage)]
 pub struct TileMap {
@@ -17,15 +27,7 @@ pub struct TileMap {
 impl TileMap {
     pub fn new(width: u32, height: u32) -> TileMap {
         TileMap {
-            tiles: Grid::new(
-                width,
-                height,
-                Tile {
-                    glyph:  Glyph('.'),
-                    solid:  false,
-                    opaque: false,
-                },
-            ),
+            tiles: Grid::new(width, height, Tile::default()),
         }
     }
 

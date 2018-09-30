@@ -19,14 +19,23 @@ pub enum BlitError {
 
 impl<T> Grid<T>
 where
-    T: Clone,
+    T: Clone + Default,
 {
-    pub fn new(width: u32, height: u32, default: T) -> Grid<T> {
+    pub fn new(width: u32, height: u32, default: T) -> Self {
         Grid {
             width,
             height,
             grid: vec![default; (width * height + 1) as usize],
         }
+    }
+
+    pub fn load(width: u32, height: u32, text: &str, loader: fn(char, Pos) -> T) -> Self {
+        let mut grid = Self::new(width, height, T::default());
+        for (idx, glyph) in text.chars().filter(|c| !c.is_whitespace()).enumerate() {
+            let pos = grid.idx_to_pos(idx);
+            grid.set(pos, loader(glyph, pos))
+        }
+        grid
     }
 
     pub fn at(&self, pos: Pos) -> &T { &self.grid[pos.to_idx(self.width)] }

@@ -27,9 +27,8 @@ impl<'a> System<'a> for HunterBrainS {
     type SystemData = (
         Entities<'a>,
         Read<'a, GameState>,
-        ReadStorage<'a, PlayerBrain>,
+        Read<'a, Option<PlayerState>>,
         WriteStorage<'a, HunterBrain>,
-        ReadStorage<'a, Location>,
         ReadStorage<'a, ActiveFlag>,
         ReadStorage<'a, FovMap>,
         WriteStorage<'a, WalkTarget>,
@@ -38,11 +37,10 @@ impl<'a> System<'a> for HunterBrainS {
 
     fn run(
         &mut self,
-        (entities, game, player, mut hunter, pos, actives, fovs, mut target, mut events): Self::SystemData,
+        (entities, game, player, mut hunter, actives, fovs, mut target, mut events): Self::SystemData,
 ){
         use specs::Join;
-        let (playerpos, &_) = (&pos, &player).join().next().unwrap();
-        let playerpos = *playerpos.pos();
+        let playerpos = player.unwrap().pos;
 
         if !game.active() {
             return;

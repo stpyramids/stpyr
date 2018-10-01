@@ -1,3 +1,5 @@
+#![feature(try_blocks)]
+
 extern crate specs;
 #[macro_use]
 extern crate specs_derive;

@@ -1,4 +1,4 @@
-use super::action::*;
+use super::{action::*, map::*, pos::*};
 use specs::prelude::*;
 
 #[derive(Default, Component, Debug)]
@@ -26,6 +26,34 @@ impl Default for GameState {
     fn default() -> GameState { GameState::Idle }
 }
 
+#[derive(Copy, Clone)]
+pub struct PlayerState {
+    pub entity: Entity,
+    pub map:    Entity,
+    pub pos:    Pos,
+}
+
+pub struct PlayerStateS;
+impl<'a> System<'a> for PlayerStateS {
+    type SystemData = (
+        Entities<'a>,
+        Write<'a, Option<PlayerState>>,
+        ReadStorage<'a, Location>,
+        ReadStorage<'a, PlayerBrain>,
+    );
+
+    fn run(&mut self, (entities, mut state, locs, brains): Self::SystemData) {
+        *state =
+            (&*entities, &brains, &locs)
+                .join()
+                .next()
+                .map(|(entity, _, Location { pos, map })| PlayerState {
+                    entity,
+                    map: *map,
+                    pos: *pos,
+                });
+    }
+}
 pub struct PlayerMoveS;
 impl<'a> System<'a> for PlayerMoveS {
     type SystemData = (

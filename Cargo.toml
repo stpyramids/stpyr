@@ -2,6 +2,8 @@
 name = "stpyrl"
 version = "0.1.0"
 authors = ["Matthew Boeh <m@mboeh.com>"]
+publish = false
+edition = "2018"
 
 [dependencies]
 specs = "0.12.1"

@@ -28,9 +28,9 @@ impl<'a> System<'a> for CursesDisplayS {
     type SystemData = (
         ReadStorage<'a, Location>,
         ReadStorage<'a, Glyph>,
-        ReadStorage<'a, PlayerBrain>,
         ReadStorage<'a, TileMap>,
         ReadStorage<'a, FovMap>,
+        Read<'a, Option<PlayerState>>,
         Read<'a, Events>,
         Read<'a, GameState>,
         Write<'a, DebugLog>,
@@ -38,7 +38,7 @@ impl<'a> System<'a> for CursesDisplayS {
 
     fn run(
         &mut self,
-        (position, glyph, player, maps, fovs, events, game, mut log): Self::SystemData,
+        (position, glyph, maps, fovs, player, events, game, mut log): Self::SystemData,
     ) {
         use specs::Join;
 
@@ -47,9 +47,8 @@ impl<'a> System<'a> for CursesDisplayS {
             return;
         }
 
-        let (playerpos, &_) = (&position, &player).join().next().unwrap();
-        let map = maps.get(playerpos.map).unwrap();
-        let (fov, &_) = (&fovs, &player).join().next().unwrap();
+        let map = maps.get(player.unwrap().map).unwrap();
+        let fov = fovs.get(player.unwrap().entity).unwrap();
 
         let mut mapbuf: Vec<char> = map
             .tiles

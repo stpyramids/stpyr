@@ -102,13 +102,13 @@ impl<'a> System<'a> for ActiveS {
         Entities<'a>,
         ReadStorage<'a, Turn>,
         ReadStorage<'a, Location>,
-        ReadStorage<'a, PlayerBrain>,
+        Read<'a, Option<PlayerState>>,
         WriteStorage<'a, ActiveFlag>,
     );
 
-    fn run(&mut self, (entities, turns, locations, players, mut actives): Self::SystemData) {
+    fn run(&mut self, (entities, turns, locations, player, mut actives): Self::SystemData) {
         use specs::Join;
-        let currentmap = (&locations, &players).join().next().unwrap().0.map;
+        let currentmap = player.unwrap().map;
 
         for (entity, location, ..) in (&*entities, &locations, &turns).join() {
             if location.map == currentmap {

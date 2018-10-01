@@ -46,7 +46,8 @@ fn run_game() {
 
     let mut world = World::new();
     let mut dispatcher = DispatcherBuilder::new()
-        .with(action::ActiveS, "active", &[])
+        .with(player::PlayerStateS, "player", &[])
+        .with(action::ActiveS, "active", &["player"])
         .with(movement::MovementS, "movement", &["active"])
         .with(fov::FovS, "fov", &["movement"])
         .with(energy::EnergyS, "energy", &["fov"])

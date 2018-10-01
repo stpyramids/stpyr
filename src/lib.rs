@@ -8,6 +8,8 @@ extern crate ncurses;
 extern crate pathfinding;
 #[macro_use]
 extern crate failure;
+extern crate serde;
+extern crate toml;
 
 pub mod action;
 pub mod adventure;

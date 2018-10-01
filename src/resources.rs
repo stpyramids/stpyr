@@ -1,10 +1,10 @@
-use std::{fs::File, path::PathBuf};
 use failure::Error;
+use std::{fs::File, path::PathBuf};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub trait ResourceLoader<T: Sized> {
-    fn load(lines: Vec<String>) -> Result<T>;
+    fn load(text: String) -> Result<T>;
 }
 
 pub trait LoadableResource: Sized {
@@ -35,11 +35,7 @@ impl ResourceDataLoader for FileResourceDataLoader {
         let mut file = File::open(filepath.clone())?;
         let mut data = String::new();
         file.read_to_string(&mut data)?;
-        let lines = data
-            .split(char::is_whitespace)
-            .map(|s| s.to_owned())
-            .collect();
 
-        T::Loader::load(lines)
+        T::Loader::load(String::from(data))
     }
 }

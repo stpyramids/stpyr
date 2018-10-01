@@ -6,7 +6,11 @@ pub struct Vault {
 }
 
 impl ResourceLoader<Vault> for Vault {
-    fn load(lines: Vec<String>) -> Result<Vault> {
+    fn load(data: String) -> Result<Vault> {
+        let lines: Vec<String> = data
+            .split(char::is_whitespace)
+            .map(|s| s.to_owned())
+            .collect();
         let width = lines[0].len() as u32;
         let height = lines.len() as u32;
         let tiles = Grid::load(width, height, &lines.join(""), |c, _| match c {

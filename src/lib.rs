@@ -20,3 +20,4 @@ pub mod map;
 pub mod movement;
 pub mod player;
 pub mod pos;
+pub mod resources;

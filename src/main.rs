@@ -3,7 +3,7 @@ extern crate specs_derive;
 extern crate stpyrl;
 
 use specs::prelude::*;
-use stpyrl::{pos::*, *};
+use stpyrl::{pos::*, resources::*, *};
 
 fn main() {
     let default_panic = std::panic::take_hook();
@@ -63,18 +63,13 @@ fn run_game() {
     world.add_resource(events::Events::new());
     world.add_resource(player::GameState::Starting);
 
-    let vault = grid::Grid::load(8, 8, include_str!("../res/room.vault"), |c, _| match c {
-        '#' => map::Tile {
-            glyph:  curses::Glyph('#'),
-            opaque: true,
-            solid:  true,
-        },
-        _ => map::Tile::default(),
-    });
+    let loader = resources::FileResourceDataLoader::new("res");
+    let vault: map::Vault = loader.load("room.vault").unwrap();
+
     let mut firstmap = map::TileMap::new(40, 20);
     firstmap
         .tiles
-        .blit(5, 5, &vault)
+        .blit(5, 5, &vault.tiles)
         .expect("couldn't place vault");
     let map = world.create_entity().with(firstmap).build();
 

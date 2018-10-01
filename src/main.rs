@@ -3,7 +3,7 @@ extern crate specs_derive;
 extern crate stpyrl;
 
 use specs::prelude::*;
-use stpyrl::{pos::*, resources::*, *};
+use stpyrl::{pos::*, *};
 
 fn main() {
     let default_panic = std::panic::take_hook();
@@ -60,15 +60,14 @@ fn run_game() {
         .build();
     dispatcher.setup(&mut world.res);
 
+    let loader = resources::FileResourceDataLoader::new("res");
+    let adventure = adventure::Adventure::new(loader);
+    let firstmap = adventure.first_map();
+    let map = world.create_entity().with(firstmap).build();
+
     world.add_resource(events::Events::new());
     world.add_resource(player::GameState::Starting);
-
-    let loader = resources::FileResourceDataLoader::new("res");
-    let vault: vault::Vault = loader.load("room.vault").expect("couldn't load vault");
-
-    let mut firstmap = map::TileMap::new(40, 20);
-    firstmap.place_vault(&vault).expect("couldn't place vault");
-    let map = world.create_entity().with(firstmap).build();
+    world.add_resource(adventure);
 
     make_player(&mut world, map);
     make_actor(&mut world, map, 's', 0.2, Pos(1, 1), |b| {

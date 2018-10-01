@@ -1,4 +1,5 @@
-use super::{curses::Glyph, grid::*, pos::*, resources::*};
+use super::{curses::Glyph, grid::*, pos::*, vault::*};
+use failure::Error;
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Debug, Clone)]
@@ -34,31 +35,10 @@ impl TileMap {
     pub fn at(&self, pos: Pos) -> &Tile { self.tiles.at(pos) }
 
     pub fn contains(&self, pos: Pos) -> bool { self.tiles.contains(pos) }
-}
 
-#[derive(Debug)]
-pub struct Vault {
-    pub tiles: Grid<Tile>,
-}
-
-impl ResourceLoader<Vault> for Vault {
-    fn load(lines: Vec<String>) -> Result<Vault> {
-        let width = lines[0].len() as u32;
-        let height = lines.len() as u32;
-        let tiles = Grid::load(width, height, &lines.join(""), |c, _| match c {
-            '#' => Tile {
-                glyph:  super::curses::Glyph('#'),
-                opaque: true,
-                solid:  true,
-            },
-            _ => Tile::default(),
-        });
-        Ok(Vault { tiles })
+    pub fn place_vault(&mut self, vault: &Vault) -> Result<(), BlitError> {
+        self.tiles.blit(5, 5, &vault.tiles)
     }
-}
-
-impl LoadableResource for Vault {
-    type Loader = Vault;
 }
 
 #[derive(Component, Debug)]

@@ -6,6 +6,8 @@ extern crate specs_derive;
 extern crate line_drawing;
 extern crate ncurses;
 extern crate pathfinding;
+#[macro_use]
+extern crate failure;
 
 pub mod action;
 pub mod ai;
@@ -21,3 +23,4 @@ pub mod movement;
 pub mod player;
 pub mod pos;
 pub mod resources;
+pub mod vault;

@@ -64,13 +64,10 @@ fn run_game() {
     world.add_resource(player::GameState::Starting);
 
     let loader = resources::FileResourceDataLoader::new("res");
-    let vault: map::Vault = loader.load("room.vault").unwrap();
+    let vault: vault::Vault = loader.load("room.vault").expect("couldn't load vault");
 
     let mut firstmap = map::TileMap::new(40, 20);
-    firstmap
-        .tiles
-        .blit(5, 5, &vault.tiles)
-        .expect("couldn't place vault");
+    firstmap.place_vault(&vault).expect("couldn't place vault");
     let map = world.create_entity().with(firstmap).build();
 
     make_player(&mut world, map);

@@ -1,4 +1,5 @@
 use super::pos::*;
+use failure::Error;
 use std::{
     ops::{Index, IndexMut},
     slice::Iter,
@@ -11,9 +12,11 @@ pub struct Grid<T> {
     grid:       Vec<T>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Fail)]
 pub enum BlitError {
+    #[fail(display = "origin out of bounds")]
     OutOfBounds,
+    #[fail(display = "source grid too large for destination")]
     TooLarge,
 }
 
@@ -57,16 +60,16 @@ where
 
     pub fn blit(&mut self, x: u32, y: u32, other: &Self) -> Result<(), BlitError> {
         if !self.contains(Pos(x, y)) {
-            return Result::Err(BlitError::OutOfBounds);
+            return Err(BlitError::OutOfBounds);
         }
         if !self.contains(Pos(x + other.width, y + other.height)) {
-            return Result::Err(BlitError::TooLarge);
+            return Err(BlitError::TooLarge);
         }
         for (idx, entry) in other.grid.iter().enumerate() {
             let pos = other.idx_to_pos(idx);
             self.set(Pos(x + pos.0, y + pos.1), entry.clone());
         }
-        Result::Ok(())
+        Ok(())
     }
 }
 

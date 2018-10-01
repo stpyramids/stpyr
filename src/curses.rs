@@ -1,11 +1,7 @@
-use super::{events::*, fov::*, log::DebugLog, map::*, player::*, pos::*};
+use super::{events::*, fov::*, log::DebugLog, map::*, player::*, pos::*, appearance::*};
 use ncurses::*;
 use specs::prelude::*;
 use std::char;
-
-#[derive(Component, Debug, Clone)]
-#[storage(VecStorage)]
-pub struct Glyph(pub char);
 
 pub struct CursesDisplayS;
 
@@ -27,7 +23,7 @@ impl CursesDisplayS {
 impl<'a> System<'a> for CursesDisplayS {
     type SystemData = (
         ReadStorage<'a, Location>,
-        ReadStorage<'a, Glyph>,
+        ReadStorage<'a, Appearance>,
         ReadStorage<'a, TileMap>,
         ReadStorage<'a, FovMap>,
         Read<'a, Option<PlayerState>>,
@@ -38,7 +34,7 @@ impl<'a> System<'a> for CursesDisplayS {
 
     fn run(
         &mut self,
-        (position, glyph, maps, fovs, player, events, game, mut log): Self::SystemData,
+        (position, apps, maps, fovs, player, events, game, mut log): Self::SystemData,
     ) {
         use specs::Join;
 
@@ -54,13 +50,13 @@ impl<'a> System<'a> for CursesDisplayS {
             .tiles
             .iter()
             .enumerate()
-            .map(|(idx, t)| if fov.visible[idx] { t.glyph.0 } else { ' ' })
+            .map(|(idx, t)| if fov.visible[idx] { t.glyph.ascii() } else { ' ' })
             .collect();
 
-        for (position, glyph) in (&position, &glyph).join() {
+        for (position, appearance) in (&position, &apps).join() {
             let idx = position.pos_to_idx(map.tiles.width as usize);
             if fov.visible(position.pos) {
-                mapbuf[idx] = glyph.0;
+                mapbuf[idx] = appearance.glyph.ascii();
             }
         }
 

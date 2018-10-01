@@ -20,14 +20,19 @@ fn make_actor(
     world: &mut World,
     map: Entity,
     glyph: char,
+    name: &'static str,
+    description: &'static str,
     speed: f32,
     pos: Pos,
     extra: fn(EntityBuilder) -> EntityBuilder,
 ) {
     let builder = world
         .create_entity()
-        .with(curses::Glyph(glyph))
-        .with(energy::Energy::new(speed))
+        .with(appearance::Appearance {
+            glyph:       appearance::Glyph::new(glyph),
+            name:        String::from(name),
+            description: String::from(description),
+        }).with(energy::Energy::new(speed))
         .with(action::Turn::default())
         .with(map::Location { map, pos })
         .with(fov::FovMap::default())
@@ -36,9 +41,16 @@ fn make_actor(
 }
 
 fn make_player(world: &mut World, map: Entity) {
-    make_actor(world, map, '@', 1.0, Pos(7, 9), |builder| {
-        builder.with(player::PlayerBrain)
-    });
+    make_actor(
+        world,
+        map,
+        '@',
+        "player",
+        "A very confused looking being",
+        1.0,
+        Pos(7, 9),
+        |builder| builder.with(player::PlayerBrain),
+    );
 }
 
 fn run_game() {
@@ -70,12 +82,26 @@ fn run_game() {
     world.add_resource(adventure);
 
     make_player(&mut world, map);
-    make_actor(&mut world, map, 's', 0.2, Pos(1, 1), |b| {
-        b.with(behavior::HunterBrain::new(1))
-    });
-    make_actor(&mut world, map, 'c', 1.1, Pos(13, 12), |b| {
-        b.with(behavior::HunterBrain::new(3))
-    });
+    make_actor(
+        &mut world,
+        map,
+        's',
+        "snake",
+        "A lazy fat garden snake",
+        0.2,
+        Pos(1, 1),
+        |b| b.with(behavior::HunterBrain::new(1)),
+    );
+    make_actor(
+        &mut world,
+        map,
+        'c',
+        "cat",
+        "A playful cat",
+        1.1,
+        Pos(13, 12),
+        |b| b.with(behavior::HunterBrain::new(3)),
+    );
 
     loop {
         dispatcher.dispatch(&mut world.res);

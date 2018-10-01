@@ -1,5 +1,4 @@
-use super::{curses::Glyph, grid::*, pos::*, vault::*};
-use failure::Error;
+use super::{appearance::Glyph, grid::*, pos::*, vault::*};
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Debug, Clone)]
@@ -12,7 +11,7 @@ pub struct Tile {
 impl Default for Tile {
     fn default() -> Tile {
         Tile {
-            glyph:  Glyph('.'),
+            glyph:  Glyph::new('.'),
             solid:  false,
             opaque: false,
         }

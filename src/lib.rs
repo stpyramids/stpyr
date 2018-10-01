@@ -10,7 +10,9 @@ extern crate pathfinding;
 extern crate failure;
 
 pub mod action;
+pub mod adventure;
 pub mod ai;
+pub mod appearance;
 pub mod behavior;
 pub mod curses;
 pub mod energy;
@@ -24,4 +26,3 @@ pub mod player;
 pub mod pos;
 pub mod resources;
 pub mod vault;
-pub mod adventure;

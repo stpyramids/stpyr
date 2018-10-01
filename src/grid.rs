@@ -1,5 +1,4 @@
 use super::pos::*;
-use failure::Error;
 use std::{
     ops::{Index, IndexMut},
     slice::Iter,

@@ -1,4 +1,4 @@
-use super::{grid::*, map::*, resources::*};
+use super::{appearance::Glyph, grid::*, map::*, resources::*};
 
 #[derive(Debug)]
 pub struct Vault {
@@ -11,8 +11,7 @@ impl ResourceLoader<Vault> for Vault {
         let height = lines.len() as u32;
         let tiles = Grid::load(width, height, &lines.join(""), |c, _| match c {
             '#' => Tile {
-                // todo: want to get all curses stuff out of lib
-                glyph:  super::curses::Glyph('#'),
+                glyph:  Glyph::new('#'),
                 opaque: true,
                 solid:  true,
             },

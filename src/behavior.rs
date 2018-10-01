@@ -1,4 +1,4 @@
-use super::{action::*, ai::*, events::*, fov::*, map::*, player::*, pos::*};
+use super::{action::*, ai::*, events::*, fov::*, player::*};
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Component, Debug)]

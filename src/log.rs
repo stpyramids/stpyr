@@ -3,17 +3,11 @@ pub struct DebugLog {
 }
 
 impl DebugLog {
-    pub fn new() -> DebugLog {
-        DebugLog { messages: vec![] }
-    }
+    pub fn new() -> DebugLog { DebugLog { messages: vec![] } }
 
-    pub fn log(&mut self, message: String) {
-        self.messages.push(message);
-    }
+    pub fn log(&mut self, message: String) { self.messages.push(message); }
 }
 
 impl Default for DebugLog {
-    fn default() -> Self {
-        return DebugLog::new();
-    }
+    fn default() -> Self { DebugLog::new() }
 }

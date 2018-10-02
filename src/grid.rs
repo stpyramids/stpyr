@@ -48,8 +48,6 @@ where
 
     pub fn iter(&self) -> Iter<T> { self.grid.iter() }
 
-    fn pos_to_idx(&self, pos: Pos) -> usize { pos.to_idx(self.width) }
-
     fn idx_to_pos(&self, idx: usize) -> Pos {
         let idx = idx as u32;
         let x = idx % self.width;
@@ -75,9 +73,9 @@ where
 impl<T> Index<usize> for Grid<T> {
     type Output = T;
 
-    fn index<'a>(&'a self, index: usize) -> &'a T { &self.grid[index] }
+    fn index(&self, index: usize) -> &T { &self.grid[index] }
 }
 
 impl<T> IndexMut<usize> for Grid<T> {
-    fn index_mut<'a>(&'a mut self, index: usize) -> &'a mut T { &mut self.grid[index] }
+    fn index_mut(&mut self, index: usize) -> &mut T { &mut self.grid[index] }
 }

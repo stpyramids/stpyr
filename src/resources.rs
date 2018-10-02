@@ -36,6 +36,6 @@ impl ResourceDataLoader for FileResourceDataLoader {
         let mut data = String::new();
         file.read_to_string(&mut data)?;
 
-        T::Loader::load(String::from(data))
+        T::Loader::load(data)
     }
 }

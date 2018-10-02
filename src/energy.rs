@@ -24,13 +24,7 @@ impl Energy {
         }
     }
 
-    pub fn can_spend(&self, amount: f32) -> bool {
-        if self.current >= amount {
-            true
-        } else {
-            false
-        }
-    }
+    pub fn can_spend(&self, amount: f32) -> bool { self.current >= amount }
 }
 
 pub struct EnergyS;

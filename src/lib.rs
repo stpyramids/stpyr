@@ -1,4 +1,8 @@
 #![feature(try_blocks)]
+#![feature(tool_lints)]
+#![warn(clippy::all)]
+// SystemData is often complex :(
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
 
 extern crate specs;
 #[macro_use]

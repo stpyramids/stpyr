@@ -48,7 +48,7 @@ pub struct Location {
 }
 
 impl HasPos for Location {
-    fn pos(&self) -> &Pos { &self.pos }
+    fn pos(&self) -> Pos { self.pos }
 
     fn set_pos(&mut self, pos: Pos) { self.pos = pos; }
 }

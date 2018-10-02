@@ -9,7 +9,7 @@ pub struct WalkTarget {
 }
 
 impl HasPos for WalkTarget {
-    fn pos(&self) -> &Pos { &self.pos }
+    fn pos(&self) -> Pos { self.pos }
 
     fn set_pos(&mut self, pos: Pos) { self.pos = pos; }
 }
@@ -50,12 +50,12 @@ impl<'a> System<'a> for AIMoveS {
                             .filter(|n| map.contains(*n))
                             .map(|n| (n, if map.at(n).solid { 999 } else { 1 }))
                     },
-                    |p| p.distance(&target.pos) / 3,
+                    |p| p.distance(target.pos) / 3,
                     |p| *p == target.pos,
                 );
                 if let Some((path, _cost)) = nextstep {
                     let nextpos = path[1];
-                    let PosDiff(dx, dy) = nextpos.diff(&pos);
+                    let PosDiff(dx, dy) = nextpos.diff(pos);
                     *turn = Turn::walk(dx, dy);
                 } else {
                     *turn = Turn::wait()

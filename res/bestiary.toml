@@ -1,0 +1,20 @@
+[[bestiary]]
+id = "player"
+speed = 1.0
+name = "player"
+glyph = "@"
+description = "very confused looking being"
+
+[[bestiary]]
+id = "snake"
+speed = 0.2
+name = "snake"
+glyph = "s"
+description = "lazy fat garden snake"
+
+[[bestiary]]
+id = "cat"
+speed = 1.1
+name = "cat"
+glyph = "c"
+description = "playful cat"

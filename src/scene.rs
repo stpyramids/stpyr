@@ -1,4 +1,4 @@
-use super::{adventure::*, pos::*, resources::*, *};
+use super::{adventure::*, def::Definition, pos::*, resources::*, *};
 use specs::prelude::*;
 
 pub struct AWorld<L: ResourceDataLoader> {
@@ -50,46 +50,30 @@ impl Default for AdventureScene {
     }
 }
 
-fn make_actor(
-    world: &mut World,
-    map: Entity,
-    glyph: char,
-    name: &'static str,
-    description: &'static str,
-    speed: f32,
-    pos: Pos,
-    extra: fn(EntityBuilder) -> EntityBuilder,
-) {
-    let builder = world
-        .create_entity()
-        .with(appearance::Appearance {
-            glyph:       appearance::Glyph::new(glyph),
-            name:        String::from(name),
-            description: String::from(description),
-        }).with(energy::Energy::new(speed))
-        .with(action::Turn::default())
-        .with(map::Location { map, pos })
-        .with(fov::FovMap::default())
-        .with(movement::MovementMap::default());
-    extra(builder).build();
+struct ActorDef {
+    glyph:       char,
+    name:        String,
+    description: String,
+    speed:       f32,
 }
 
-fn make_player(world: &mut World, map: Entity) {
-    make_actor(
-        world,
-        map,
-        '@',
-        "player",
-        "A very confused looking being",
-        1.0,
-        Pos(7, 9),
-        |builder| builder.with(player::PlayerBrain),
-    );
+impl<'a> Definition<'a> for ActorDef {
+    fn mint(self, builder: EntityBuilder<'a>) -> EntityBuilder<'a> {
+        builder
+            .with(appearance::Appearance {
+                glyph:       appearance::Glyph::new(self.glyph),
+                name:        self.name,
+                description: self.description,
+            }).with(energy::Energy::new(self.speed))
+            .with(action::Turn::default())
+            .with(fov::FovMap::default())
+            .with(movement::MovementMap::default())
+    }
 }
 
 impl<L: ResourceDataLoader> Scene<L> for AdventureScene {
     fn setup(&mut self, aworld: &mut AWorld<L>) {
-        let mut world = &mut aworld.specs_world;
+        let world = &mut aworld.specs_world;
         self.dispatcher.setup(&mut world.res);
 
         let firstmap = aworld.adventure.first_map();
@@ -98,27 +82,41 @@ impl<L: ResourceDataLoader> Scene<L> for AdventureScene {
         world.add_resource(events::Events::new());
         world.add_resource(player::GameState::Starting);
 
-        make_player(&mut world, map);
-        make_actor(
-            &mut world,
+        ActorDef {
+            name:        "player".to_string(),
+            description: "very confused looking being".to_string(),
+            glyph:       '@',
+            speed:       1.0,
+        }.mint(world.create_entity())
+        .with(player::PlayerBrain)
+        .with(map::Location {
             map,
-            's',
-            "snake",
-            "A lazy fat garden snake",
-            0.2,
-            Pos(1, 1),
-            |b| b.with(behavior::HunterBrain::new(1)),
-        );
-        make_actor(
-            &mut world,
+            pos: Pos(7, 9),
+        }).build();
+
+        ActorDef {
+            name:        "snake".to_string(),
+            description: "lazy fat garden snake".to_string(),
+            glyph:       's',
+            speed:       0.2,
+        }.mint(world.create_entity())
+        .with(behavior::HunterBrain::new(1))
+        .with(map::Location {
             map,
-            'c',
-            "cat",
-            "A playful cat",
-            1.1,
-            Pos(13, 12),
-            |b| b.with(behavior::HunterBrain::new(3)),
-        );
+            pos: Pos(1, 1),
+        }).build();
+
+        ActorDef {
+            name:        "cat".to_string(),
+            description: "playful little cat".to_string(),
+            glyph:       'c',
+            speed:       1.1,
+        }.mint(world.create_entity())
+        .with(behavior::HunterBrain::new(3))
+        .with(map::Location {
+            map,
+            pos: Pos(13, 12),
+        }).build();
     }
 
     fn update(&mut self, aworld: &mut AWorld<L>) -> SceneChange<L> {

@@ -32,3 +32,4 @@ pub mod player;
 pub mod pos;
 pub mod resources;
 pub mod vault;
+pub mod scene;

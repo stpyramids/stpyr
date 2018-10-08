@@ -7,6 +7,16 @@ pub struct AWorld<L: ResourceDataLoader, D: Display> {
     pub adventure:   Adventure<L>,
 }
 
+impl<L: ResourceDataLoader, D: Display> AWorld<L, D> {
+    pub fn new(adventure: Adventure<L>, display: D) -> AWorld<L, D> {
+        AWorld {
+            specs_world: specs::World::new(),
+            adventure,
+            display,
+        }
+    }
+}
+
 pub struct AdventureScene {
     dispatcher: Dispatcher<'static, 'static>,
 }

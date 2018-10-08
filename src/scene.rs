@@ -1,8 +1,9 @@
-use super::{adventure::*, def::*, pos::*, resources::*, *};
+use super::{adventure::*, def::*, display::*, pos::*, resources::*, *};
 use specs::prelude::*;
 
-pub struct AWorld<L: ResourceDataLoader> {
+pub struct AWorld<L: ResourceDataLoader, D: Display> {
     pub specs_world: specs::World,
+    pub display:     D,
     pub adventure:   Adventure<L>,
 }
 
@@ -10,17 +11,17 @@ pub struct AdventureScene {
     dispatcher: Dispatcher<'static, 'static>,
 }
 
-pub enum SceneChange<L: ResourceDataLoader> {
+pub enum SceneChange<L: ResourceDataLoader, D: Display> {
     None,
-    Switch(Box<Scene<L>>),
-    Push(Box<Scene<L>>),
+    Switch(Box<Scene<L, D>>),
+    Push(Box<Scene<L, D>>),
     Pop,
     Exit,
 }
 
-pub trait Scene<L: ResourceDataLoader> {
-    fn setup(&mut self, world: &mut AWorld<L>);
-    fn update(&mut self, world: &mut AWorld<L>) -> SceneChange<L>;
+pub trait Scene<L: ResourceDataLoader, D: Display> {
+    fn setup(&mut self, world: &mut AWorld<L, D>);
+    fn update(&mut self, world: &mut AWorld<L, D>) -> SceneChange<L, D>;
 }
 
 impl AdventureScene {
@@ -50,8 +51,8 @@ impl Default for AdventureScene {
     }
 }
 
-impl<L: ResourceDataLoader> Scene<L> for AdventureScene {
-    fn setup(&mut self, aworld: &mut AWorld<L>) {
+impl<L: ResourceDataLoader, D: Display> Scene<L, D> for AdventureScene {
+    fn setup(&mut self, aworld: &mut AWorld<L, D>) {
         let world = &mut aworld.specs_world;
         let adventure = &aworld.adventure;
 
@@ -94,15 +95,16 @@ impl<L: ResourceDataLoader> Scene<L> for AdventureScene {
             }).build();
     }
 
-    fn update(&mut self, aworld: &mut AWorld<L>) -> SceneChange<L> {
+    fn update(&mut self, aworld: &mut AWorld<L, D>) -> SceneChange<L, D> {
         let world = &mut aworld.specs_world;
         self.dispatcher.dispatch(&world.res);
         world.maintain();
 
-        let ch = curses::CursesDisplayS::getch();
+        let ch = aworld.display.getch();
         match ch {
             Some(ch) => match ch {
                 'q' => return SceneChange::Exit,
+                '!' => panic!("panic button pressed"),
                 other => {
                     let mut state = world.write_resource::<player::GameState>();
                     *state = player::GameState::Active(Some(other));

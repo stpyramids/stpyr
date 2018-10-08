@@ -1,24 +1,44 @@
-use super::{events::*, fov::*, log::DebugLog, map::*, player::*, pos::*, appearance::*};
+use super::{
+    appearance::*, display::*, events::*, fov::*, log::DebugLog, map::*, player::*, pos::*,
+};
 use ncurses::*;
 use specs::prelude::*;
 use std::char;
 
-pub struct CursesDisplayS;
+pub struct CursesDisplay();
 
-impl CursesDisplayS {
-    pub fn init() {
+impl CursesDisplay {
+    pub fn init() -> Self {
         initscr();
         raw();
 
         keypad(stdscr(), true);
         timeout(0);
         noecho();
+
+        let default_panic = std::panic::take_hook();
+        std::panic::set_hook(Box::new(move |panic| {
+            endwin();
+            default_panic(panic);
+        }));
+
+        CursesDisplay()
     }
-
-    pub fn finish() { endwin(); }
-
-    pub fn getch() -> Option<char> { char::from_u32(getch() as u32) }
 }
+
+impl Display for CursesDisplay {
+    fn getch(&self) -> Option<char> {
+        char::from_u32(getch() as u32)
+    }
+}
+
+impl Drop for CursesDisplay {
+    fn drop(&mut self) {
+        endwin();
+    }
+}
+
+pub struct CursesDisplayS;
 
 impl<'a> System<'a> for CursesDisplayS {
     type SystemData = (
@@ -50,8 +70,13 @@ impl<'a> System<'a> for CursesDisplayS {
             .tiles
             .iter()
             .enumerate()
-            .map(|(idx, t)| if fov.visible[idx] { t.glyph.ascii() } else { ' ' })
-            .collect();
+            .map(|(idx, t)| {
+                if fov.visible[idx] {
+                    t.glyph.ascii()
+                } else {
+                    ' '
+                }
+            }).collect();
 
         for (position, appearance) in (&position, &apps).join() {
             let idx = position.pos_to_idx(map.tiles.width as usize);

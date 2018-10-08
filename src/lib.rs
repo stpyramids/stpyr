@@ -36,3 +36,4 @@ pub mod pos;
 pub mod resources;
 pub mod scene;
 pub mod vault;
+pub mod display;

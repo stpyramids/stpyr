@@ -1,28 +1,28 @@
 extern crate stpyrl;
 
-use stpyrl::{scene::*, *};
+use stpyrl::{adventure::*, curses::*, resources::*, scene::*};
 
 fn main() {
     let default_panic = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |panic| {
-        curses::CursesDisplayS::finish();
+        CursesDisplayS::finish();
         default_panic(panic);
     }));
 
     run_game();
-    curses::CursesDisplayS::finish();
+    CursesDisplayS::finish();
 }
 
 fn run_game() {
-    curses::CursesDisplayS::init();
+    CursesDisplayS::init();
 
-    let loader = resources::FileResourceDataLoader::new("res");
-    let adventure = adventure::Adventure::new(loader);
-    let mut world = scene::AWorld {
+    let loader = FileResourceDataLoader::new("res");
+    let adventure = Adventure::new(loader);
+    let mut world = AWorld {
         specs_world: specs::World::new(),
         adventure,
     };
-    let mut scene = scene::AdventureScene::new();
+    let mut scene = AdventureScene::new();
     scene.setup(&mut world);
 
     loop {

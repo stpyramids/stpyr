@@ -40,15 +40,23 @@ where
         grid
     }
 
-    pub fn at(&self, pos: Pos) -> &T { &self.grid[pos.to_idx(self.width)] }
+    pub fn at(&self, pos: Pos) -> &T {
+        &self.grid[pos.to_idx(self.width)]
+    }
 
-    pub fn set(&mut self, pos: Pos, value: T) { self.grid[pos.to_idx(self.width)] = value; }
+    pub fn set(&mut self, pos: Pos, value: T) {
+        self.grid[pos.to_idx(self.width)] = value;
+    }
 
-    pub fn contains(&self, pos: Pos) -> bool { pos.0 < self.width && pos.1 < self.height }
+    pub fn contains(&self, pos: Pos) -> bool {
+        pos.0 < self.width && pos.1 < self.height
+    }
 
-    pub fn iter(&self) -> Iter<T> { self.grid.iter() }
+    pub fn iter(&self) -> Iter<T> {
+        self.grid.iter()
+    }
 
-    fn idx_to_pos(&self, idx: usize) -> Pos {
+    pub fn idx_to_pos(&self, idx: usize) -> Pos {
         let idx = idx as u32;
         let x = idx % self.width;
         let y = idx / self.width;
@@ -73,9 +81,13 @@ where
 impl<T> Index<usize> for Grid<T> {
     type Output = T;
 
-    fn index(&self, index: usize) -> &T { &self.grid[index] }
+    fn index(&self, index: usize) -> &T {
+        &self.grid[index]
+    }
 }
 
 impl<T> IndexMut<usize> for Grid<T> {
-    fn index_mut(&mut self, index: usize) -> &mut T { &mut self.grid[index] }
+    fn index_mut(&mut self, index: usize) -> &mut T {
+        &mut self.grid[index]
+    }
 }

@@ -1,4 +1,5 @@
 use pathfinding::prelude::absdiff;
+use std::ops::Add;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Pos(pub u32, pub u32);
@@ -68,6 +69,45 @@ impl Pos {
         .map(|(dx, dy)| Pos(dx as u32, dy as u32))
         .collect()
     }
+
+    pub fn within(self, bounds: Bounds) -> bool {
+        let (Pos(x0, y0), Pos(x1, y1)) = bounds;
+        let Pos(x, y) = self;
+
+        x >= x0 && x <= x1 && y >= y0 && y <= y1
+    }
+}
+
+impl Add for Pos {
+    type Output = Pos;
+
+    fn add(self, other: Pos) -> Pos {
+        Pos(self.0 + other.0, self.1 + other.1)
+    }
+}
+
+impl Add<PosDiff> for Pos {
+    type Output = Pos;
+
+    fn add(self, other: PosDiff) -> Pos {
+        let PosDiff(dx, dy) = other;
+        let Pos(mut x, mut y) = self;
+        if dx >= 0 {
+            x += dx as u32;
+        } else if x >= (-dx as u32) {
+            x -= -dx as u32;
+        } else {
+            x = 0;
+        }
+        if dy >= 0 {
+            y += dy as u32;
+        } else if y >= (-dy as u32) {
+            y -= -dy as u32;
+        } else {
+            y = 0;
+        }
+        Pos(x, y)
+    }
 }
 
 impl PosDiff {
@@ -84,7 +124,9 @@ pub trait HasPos {
         self.set_pos(pos.clamp(low, high));
     }
     fn set_pos(&mut self, pos: Pos);
-    fn move_pos(&self, diff: PosDiff) -> Pos { self.move_pos_xy(diff.0, diff.1) }
+    fn move_pos(&self, diff: PosDiff) -> Pos {
+        self.move_pos_xy(diff.0, diff.1)
+    }
     fn move_pos_xy(&self, dx: i32, dy: i32) -> Pos {
         let Pos(mut x, mut y) = self.pos();
         if dx >= 0 {
@@ -103,6 +145,10 @@ pub trait HasPos {
         }
         Pos(x, y)
     }
-    fn pos_to_idx(&self, w: usize) -> usize { self.pos().to_idx(w as u32) }
-    fn diff(&self, other: &HasPos) -> PosDiff { self.pos().diff(other.pos()) }
+    fn pos_to_idx(&self, w: usize) -> usize {
+        self.pos().to_idx(w as u32)
+    }
+    fn diff(&self, other: &HasPos) -> PosDiff {
+        self.pos().diff(other.pos())
+    }
 }

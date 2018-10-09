@@ -1,4 +1,5 @@
 use super::{appearance::Glyph, grid::*, pos::*, vault::*};
+use failure::Error;
 use specs::{prelude::*, storage::BTreeStorage};
 
 #[derive(Debug, Clone)]
@@ -31,12 +32,32 @@ impl TileMap {
         }
     }
 
-    pub fn at(&self, pos: Pos) -> &Tile { self.tiles.at(pos) }
+    pub fn at(&self, pos: Pos) -> &Tile {
+        self.tiles.at(pos)
+    }
 
-    pub fn contains(&self, pos: Pos) -> bool { self.tiles.contains(pos) }
+    pub fn contains(&self, pos: Pos) -> bool {
+        self.tiles.contains(pos)
+    }
 
-    pub fn place_vault(&mut self, vault: &Vault) -> Result<(), BlitError> {
-        self.tiles.blit(5, 5, &vault.tiles)
+    pub fn place_vault(&mut self, start: Pos, vault: &Vault) -> Result<(), Error> {
+        self.place(
+            start,
+            start + PosDiff(vault.tiles.width as i32, vault.tiles.height as i32),
+            vault,
+        )
+    }
+
+    pub fn place(&mut self, start: Pos, end: Pos, generator: &MapGenerator) -> Result<(), Error> {
+        let tiles = generator
+            .generate(&self.tiles, start, end)
+            .expect("couldn't generate");
+        for (pos, tile) in tiles {
+            if let Some(tile) = tile {
+                self.tiles.set(pos, tile)
+            }
+        }
+        Ok(())
     }
 }
 
@@ -48,7 +69,20 @@ pub struct Location {
 }
 
 impl HasPos for Location {
-    fn pos(&self) -> Pos { self.pos }
+    fn pos(&self) -> Pos {
+        self.pos
+    }
 
-    fn set_pos(&mut self, pos: Pos) { self.pos = pos; }
+    fn set_pos(&mut self, pos: Pos) {
+        self.pos = pos;
+    }
+}
+
+pub trait MapGenerator {
+    fn generate(
+        &self,
+        current: &Grid<Tile>,
+        start: Pos,
+        end: Pos,
+    ) -> Option<Vec<(Pos, Option<Tile>)>>;
 }

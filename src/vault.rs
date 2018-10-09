@@ -1,4 +1,4 @@
-use super::{appearance::Glyph, grid::*, map::*, resources::*};
+use super::{appearance::Glyph, grid::*, map::*, pos::*, resources::*};
 
 #[derive(Debug)]
 pub struct Vault {
@@ -22,6 +22,27 @@ impl ResourceLoader<Vault> for Vault {
             _ => Tile::default(),
         });
         Ok(Vault { tiles })
+    }
+}
+
+impl MapGenerator for Vault {
+    fn generate(
+        &self,
+        _current: &Grid<Tile>,
+        start: Pos,
+        end: Pos,
+    ) -> Option<Vec<(Pos, Option<Tile>)>> {
+        let bounds = (start, end);
+        Some(
+            self.tiles
+                .iter()
+                .enumerate()
+                .map(|(idx, entry)| {
+                    let pos = start + self.tiles.idx_to_pos(idx);
+                    (pos, Some(entry.to_owned()))
+                }).filter(|(pos, _)| pos.within(bounds))
+                .collect(),
+        )
     }
 }
 

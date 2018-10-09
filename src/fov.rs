@@ -51,8 +51,10 @@ impl FovMap {
         let Pos(px, py) = pov;
         for lx in 0..self.width {
             for ly in 0..self.height {
-                for (x, y) in Bresenham::new((lx as i32, ly as i32), (px as i32, py as i32)).skip(1)
-                {
+                for (x, y) in Bresenham::new((lx as i32, ly as i32), (px as i32, py as i32)) {
+                    if (x as u32, y as u32) == (px, py) || (x as u32, y as u32) == (lx, ly) {
+                        continue;
+                    }
                     if *self.blocked.at(Pos(x as u32, y as u32)) {
                         self.visible.set(Pos(lx, ly), false);
                     }

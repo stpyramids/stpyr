@@ -27,7 +27,7 @@ where
         Grid {
             width,
             height,
-            grid: vec![default; (width * height + 1) as usize],
+            grid: vec![default; (width * height) as usize],
         }
     }
 

@@ -1,5 +1,5 @@
 use super::{
-    appearance::*, display::*, events::*, fov::*, log::DebugLog, map::*, player::*, pos::*,
+    appearance::*, display::*, events::*, fov::*, grid::*, log::DebugLog, map::*, player::*, pos::*,
 };
 use ncurses::*;
 use specs::prelude::*;
@@ -66,30 +66,24 @@ impl<'a> System<'a> for CursesDisplayS {
         let map = maps.get(player.unwrap().map).unwrap();
         let fov = fovs.get(player.unwrap().entity).unwrap();
 
-        let mut mapbuf: Vec<char> = map
-            .tiles
-            .iter()
-            .enumerate()
-            .map(|(idx, t)| {
-                if fov.visible[idx] {
-                    t.glyph.ascii()
-                } else {
-                    ' '
-                }
-            }).collect();
+        let mut display: Grid<char> = Grid::new(map.tiles.width, map.tiles.height, ' ');
+        for pos in Pos(0, 0).iter_to(Pos(map.tiles.width - 1, map.tiles.height - 1)) {
+            if fov.visible(pos) {
+                display.set(pos, map.tiles.at(pos).glyph.ascii());
+            }
+        }
 
         for (position, appearance) in (&position, &apps).join() {
-            let idx = position.pos_to_idx(map.tiles.width as usize);
             if fov.visible(position.pos) {
-                mapbuf[idx] = appearance.glyph.ascii();
+                display.set(position.pos, appearance.glyph.ascii());
             }
         }
 
         clear();
-        for row in mapbuf.chunks(map.tiles.width as usize) {
-            let rowstr: String = row.into_iter().collect();
-            printw(&format!("{}\n", rowstr));
+        for pos in Pos(0, 0).iter_to(Pos(display.width - 1, display.height - 1)) {
+            mvaddch(pos.1 as i32, pos.0 as i32, *display.at(pos) as u32);
         }
+        wmove(stdscr(), (display.height + 1) as i32, 0);
         for evt in &events.events {
             printw(&format!("EVENT: {:?}\n", evt));
         }

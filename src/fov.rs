@@ -12,7 +12,9 @@ pub struct FovMap {
 }
 
 impl Default for FovMap {
-    fn default() -> FovMap { FovMap::new(1, 1) }
+    fn default() -> FovMap {
+        FovMap::new(1, 1)
+    }
 }
 
 impl FovMap {
@@ -33,11 +35,17 @@ impl FovMap {
         fov
     }
 
-    pub fn visible(&self, pos: Pos) -> bool { *self.visible.at(pos) }
+    pub fn visible(&self, pos: Pos) -> bool {
+        *self.visible.at(pos)
+    }
 
-    pub fn blocked(&self, pos: Pos) -> bool { *self.blocked.at(pos) }
+    pub fn blocked(&self, pos: Pos) -> bool {
+        *self.blocked.at(pos)
+    }
 
-    pub fn contains(&self, pos: Pos) -> bool { pos.0 < self.width && pos.1 < self.height }
+    pub fn contains(&self, pos: Pos) -> bool {
+        pos.0 < self.width && pos.1 < self.height
+    }
 
     pub fn compute(&mut self, pov: Pos) {
         let Pos(px, py) = pov;
@@ -51,6 +59,7 @@ impl FovMap {
                 }
             }
         }
+        self.visible.set(pov, true);
     }
 }
 

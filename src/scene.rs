@@ -49,7 +49,7 @@ impl AdventureScene {
                 .with_barrier()
                 .with(action::TurnS, "turn", &["player_move"])
                 .with(fov::FovS, "fov_end", &["turn"])
-                .with_thread_local(curses::CursesDisplayS)
+                .with_thread_local(curses::CursesDisplayS::new())
                 .with_thread_local(events::EventPumpS)
                 .build(),
         }

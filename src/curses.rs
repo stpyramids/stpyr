@@ -38,7 +38,25 @@ impl Drop for CursesDisplay {
     }
 }
 
-pub struct CursesDisplayS;
+pub struct CursesDisplayS {
+    gamewin: WINDOW,
+    logwin:  WINDOW,
+}
+
+impl CursesDisplayS {
+    pub fn new() -> Self {
+        CursesDisplayS {
+            gamewin: newwin(30, 30, 0, 0),
+            logwin:  newwin(30, 80, 0, 32),
+        }
+    }
+}
+
+impl Default for CursesDisplayS {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl<'a> System<'a> for CursesDisplayS {
     type SystemData = (
@@ -79,18 +97,25 @@ impl<'a> System<'a> for CursesDisplayS {
             }
         }
 
-        clear();
+        wclear(self.gamewin);
         for pos in Pos(0, 0).iter_to(Pos(display.width - 1, display.height - 1)) {
-            mvaddch(pos.1 as i32, pos.0 as i32, *display.at(pos) as u32);
+            mvwaddch(
+                self.gamewin,
+                pos.1 as i32,
+                pos.0 as i32,
+                *display.at(pos) as u32,
+            );
         }
-        wmove(stdscr(), (display.height + 1) as i32, 0);
+        wrefresh(self.gamewin);
+
+        wclear(self.logwin);
         for evt in &events.events {
-            printw(&format!("EVENT: {:?}\n", evt));
+            wprintw(self.logwin, &format!("EVENT: {:?}\n", evt));
         }
         for message in &log.messages {
-            printw(&format!("LOG: {}\n", message));
+            wprintw(self.logwin, &format!("LOG: {}\n", message));
         }
         log.messages.clear();
-        refresh();
+        wrefresh(self.logwin);
     }
 }

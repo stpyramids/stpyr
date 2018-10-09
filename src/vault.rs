@@ -1,4 +1,4 @@
-use super::{appearance::Glyph, grid::*, map::*, pos::*, resources::*};
+use super::{appearance::Glyph, grid::*, map::*, pos::*, resources::*, tile_generator::*};
 
 #[derive(Debug)]
 pub struct Vault {
@@ -19,13 +19,18 @@ impl ResourceLoader<Vault> for Vault {
                 opaque: true,
                 solid:  true,
             },
+            '%' => Tile {
+                glyph:  Glyph::new('%'),
+                opaque: true,
+                solid:  false,
+            },
             _ => Tile::default(),
         });
         Ok(Vault { tiles })
     }
 }
 
-impl MapGenerator for Vault {
+impl TileGenerator for Vault {
     fn generate(
         &self,
         _current: &Grid<Tile>,

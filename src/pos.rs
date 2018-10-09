@@ -76,6 +76,10 @@ impl Pos {
 
         x >= x0 && x <= x1 && y >= y0 && y <= y1
     }
+
+    pub fn iter_to(self, other: Self) -> RectIter {
+        RectIter((self, other), self)
+    }
 }
 
 impl Add for Pos {
@@ -150,5 +154,29 @@ pub trait HasPos {
     }
     fn diff(&self, other: &HasPos) -> PosDiff {
         self.pos().diff(other.pos())
+    }
+}
+
+pub struct RectIter(Bounds, Pos);
+
+impl Iterator for RectIter {
+    type Item = Pos;
+
+    fn next(&mut self) -> Option<Pos> {
+        let RectIter((_, end), pos) = *self;
+        let mut nextpos = pos;
+
+        nextpos.0 += 1;
+        if nextpos.0 > end.0 {
+            nextpos.1 += 1;
+            nextpos.0 = 0;
+        }
+        self.1 = nextpos;
+
+        if pos.within(self.0) {
+            Some(pos)
+        } else {
+            None
+        }
     }
 }

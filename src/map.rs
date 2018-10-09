@@ -1,4 +1,4 @@
-use super::{appearance::Glyph, grid::*, pos::*, vault::*};
+use super::{appearance::Glyph, grid::*, pos::*, tile_generator::TileGenerator, vault::*};
 use failure::Error;
 use specs::{prelude::*, storage::BTreeStorage};
 
@@ -48,7 +48,7 @@ impl TileMap {
         )
     }
 
-    pub fn place(&mut self, start: Pos, end: Pos, generator: &MapGenerator) -> Result<(), Error> {
+    pub fn place(&mut self, start: Pos, end: Pos, generator: &TileGenerator) -> Result<(), Error> {
         let tiles = generator
             .generate(&self.tiles, start, end)
             .expect("couldn't generate");
@@ -76,13 +76,4 @@ impl HasPos for Location {
     fn set_pos(&mut self, pos: Pos) {
         self.pos = pos;
     }
-}
-
-pub trait MapGenerator {
-    fn generate(
-        &self,
-        current: &Grid<Tile>,
-        start: Pos,
-        end: Pos,
-    ) -> Option<Vec<(Pos, Option<Tile>)>>;
 }

@@ -1,6 +1,6 @@
-extern crate stpyrl;
+extern crate stpyr;
 
-use stpyrl::{adventure::*, curses::*, resources::*, scene::*};
+use stpyr::{adventure::*, curses::*, resources::*, scene::*};
 
 fn main() {
     let mut world = AWorld::new(

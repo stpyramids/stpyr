@@ -1,5 +1,5 @@
 [package]
-name = "stpyrl"
+name = "stpyr"
 version = "0.1.0"
 authors = ["Matthew Boeh <m@mboeh.com>"]
 publish = false

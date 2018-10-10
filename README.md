@@ -1,6 +1,6 @@
-# roguelike experiment
+# STPYR
 
-Experimenting with roguelike implementation in Rust, using the `specs` Entity-Component-System framework.
+A game in progress. Possibly multiple games in progress.
 
 ## Implemented
 

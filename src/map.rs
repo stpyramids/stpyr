@@ -48,7 +48,12 @@ impl TileMap {
         )
     }
 
-    pub fn place(&mut self, start: Pos, end: Pos, generator: &TileGenerator) -> Result<(), Error> {
+    pub fn place(
+        &mut self,
+        start: Pos,
+        end: Pos,
+        generator: &dyn TileGenerator,
+    ) -> Result<(), Error> {
         let tiles = generator
             .generate(&self.tiles, start, end)
             .expect("couldn't generate");

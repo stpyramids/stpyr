@@ -152,7 +152,7 @@ pub trait HasPos {
     fn pos_to_idx(&self, w: usize) -> usize {
         self.pos().to_idx(w as u32)
     }
-    fn diff(&self, other: &HasPos) -> PosDiff {
+    fn diff(&self, other: &dyn HasPos) -> PosDiff {
         self.pos().diff(other.pos())
     }
 }

@@ -1,7 +1,7 @@
 use super::resources::*;
 
 pub trait Definition {
-    fn mint(self, builder: specs::EntityBuilder) -> specs::EntityBuilder;
+    fn mint(self, builder: specs::EntityBuilder<'_>) -> specs::EntityBuilder<'_>;
 }
 
 pub trait Codex<D: Definition>: LoadableResource {
@@ -21,7 +21,7 @@ pub struct ActorDef {
 }
 
 impl Definition for ActorDef {
-    fn mint(self, builder: specs::EntityBuilder) -> specs::EntityBuilder {
+    fn mint(self, builder: specs::EntityBuilder<'_>) -> specs::EntityBuilder<'_> {
         use specs::Builder;
 
         builder

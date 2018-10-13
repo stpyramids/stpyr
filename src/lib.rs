@@ -1,21 +1,15 @@
 #![feature(try_blocks)]
-#![feature(tool_lints)]
 #![warn(clippy::all)]
+#![warn(rust_2018_idioms)]
 // SystemData is often complex :(
 #![cfg_attr(feature = "cargo-clippy", allow(clippy::type_complexity))]
 
-extern crate specs;
 #[macro_use]
 extern crate specs_derive;
-extern crate line_drawing;
-extern crate ncurses;
-extern crate pathfinding;
 #[macro_use]
 extern crate failure;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-extern crate toml;
 
 pub mod action;
 pub mod adventure;

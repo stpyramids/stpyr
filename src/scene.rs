@@ -23,8 +23,8 @@ pub struct AdventureScene {
 
 pub enum SceneChange<L: ResourceDataLoader, D: Display> {
     None,
-    Switch(Box<Scene<L, D>>),
-    Push(Box<Scene<L, D>>),
+    Switch(Box<dyn Scene<L, D>>),
+    Push(Box<dyn Scene<L, D>>),
     Pop,
     Exit,
 }

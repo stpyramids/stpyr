@@ -55,12 +55,10 @@ impl TileMap {
         generator: &dyn TileGenerator,
     ) -> Result<(), Error> {
         let tiles = generator
-            .generate(&self.tiles, start, end)
+            .generate(&self.tiles, (start, end))
             .expect("couldn't generate");
         for (pos, tile) in tiles {
-            if let Some(tile) = tile {
-                self.tiles.set(pos, tile)
-            }
+            self.tiles.set(pos, tile)
         }
         Ok(())
     }

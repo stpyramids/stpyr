@@ -1,6 +1,4 @@
-use super::{
-    appearance::*, display::*, events::*, fov::*, grid::*, log::DebugLog, map::*, player::*, pos::*,
-};
+use super::{appearance::*, display::*, events::*, fov::*, grid::*, map::*, player::*, pos::*};
 use ncurses::*;
 use specs::prelude::*;
 use std::char;
@@ -67,13 +65,9 @@ impl<'a> System<'a> for CursesDisplayS {
         Read<'a, Option<PlayerState>>,
         Read<'a, Events>,
         Read<'a, GameState>,
-        Write<'a, DebugLog>,
     );
 
-    fn run(
-        &mut self,
-        (position, apps, maps, fovs, player, events, game, mut log): Self::SystemData,
-    ) {
+    fn run(&mut self, (position, apps, maps, fovs, player, events, game): Self::SystemData) {
         use specs::Join;
 
         if !game.active() {
@@ -110,12 +104,9 @@ impl<'a> System<'a> for CursesDisplayS {
 
         wclear(self.logwin);
         for evt in &events.events {
-            wprintw(self.logwin, &format!("EVENT: {:?}\n", evt));
+            debug!("EVENT: {:?}\n", evt);
         }
-        for message in &log.messages {
-            wprintw(self.logwin, &format!("LOG: {}\n", message));
-        }
-        log.messages.clear();
+
         wrefresh(self.logwin);
     }
 }

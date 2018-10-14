@@ -64,7 +64,8 @@ impl Pos {
             (x - 1, y),
             (x - 1, y - 1),
             (x - 1, y + 1),
-        ].into_iter()
+        ]
+        .into_iter()
         .filter(|(dx, dy)| *dx > 0 && *dy > 0)
         .map(|(dx, dy)| Pos(dx as u32, dy as u32))
         .collect()

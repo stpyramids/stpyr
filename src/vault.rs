@@ -1,4 +1,4 @@
-use super::{appearance::Glyph, grid::*, map::*, pos::*, resources::*, tile_generator::*};
+use super::{appearance::Glyph, map::*, resources::*, tile_generator::*};
 
 #[derive(Debug)]
 pub struct Vault {
@@ -34,20 +34,18 @@ impl TileGenerator for Vault {
     fn generate(
         &self,
         _current: &Grid<Tile>,
-        start: Pos,
-        end: Pos,
-    ) -> Option<Vec<(Pos, Option<Tile>)>> {
-        let bounds = (start, end);
-        Some(
-            self.tiles
-                .iter()
-                .enumerate()
-                .map(|(idx, entry)| {
-                    let pos = start + self.tiles.idx_to_pos(idx);
-                    (pos, Some(entry.to_owned()))
-                }).filter(|(pos, _)| pos.within(bounds))
-                .collect(),
-        )
+        bounds: Bounds,
+    ) -> std::result::Result<Vec<(Pos, Tile)>, GenError> {
+        Ok(self
+            .tiles
+            .iter()
+            .enumerate()
+            .map(|(idx, entry)| {
+                let pos = bounds.0 + self.tiles.idx_to_pos(idx);
+                (pos, entry.to_owned())
+            })
+            .filter(|(pos, _)| pos.within(bounds))
+            .collect())
     }
 }
 

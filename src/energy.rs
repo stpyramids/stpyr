@@ -1,4 +1,4 @@
-use super::{action::*, log::DebugLog, player::*};
+use super::action::ActiveFlag;
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
@@ -16,7 +16,9 @@ impl Energy {
         }
     }
 
-    fn tick(&mut self) { self.current += self.per_tick; }
+    fn tick(&mut self) {
+        self.current += self.per_tick;
+    }
 
     pub fn spend(&mut self, amount: f32) {
         if self.current >= amount {
@@ -24,7 +26,9 @@ impl Energy {
         }
     }
 
-    pub fn can_spend(&self, amount: f32) -> bool { self.current >= amount }
+    pub fn can_spend(&self, amount: f32) -> bool {
+        self.current >= amount
+    }
 }
 
 pub struct EnergyS;
@@ -32,20 +36,16 @@ pub struct EnergyS;
 impl<'a> System<'a> for EnergyS {
     type SystemData = (
         Entities<'a>,
-        Read<'a, GameState>,
         ReadStorage<'a, ActiveFlag>,
         WriteStorage<'a, Energy>,
-        Write<'a, DebugLog>,
     );
 
-    fn run(&mut self, (entities, game, actives, mut energy, mut debug): Self::SystemData) {
+    fn run(&mut self, (entities, actives, mut energy): Self::SystemData) {
         use specs::Join;
 
-        if game.active() {
-            for (entity, energy, ..) in (&*entities, &mut energy, &actives).join() {
-                energy.tick();
-                debug.log(format!("energy for {:?} = {}", entity, energy.current));
-            }
+        for (entity, energy, ..) in (&*entities, &mut energy, &actives).join() {
+            energy.tick();
+            debug!("energy for {:?} = {}", entity, energy.current);
         }
     }
 }

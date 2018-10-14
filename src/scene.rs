@@ -46,9 +46,9 @@ impl AdventureScene {
                 .with(behavior::HunterBrainS, "hunter_brain", &["energy"])
                 .with(ai::AIMoveS, "ai_move", &["hunter_brain"])
                 .with(player::PlayerMoveS, "player_move", &["energy"])
-                .with_barrier()
                 .with(action::TurnS, "turn", &["player_move"])
                 .with(fov::FovS, "fov_end", &["turn"])
+                .with_barrier()
                 .with_thread_local(curses::CursesDisplayS::new())
                 .with_thread_local(events::EventPumpS)
                 .build(),
@@ -71,9 +71,6 @@ impl<L: ResourceDataLoader, D: Display> Scene<L, D> for AdventureScene {
 
         let firstmap = aworld.adventure.first_map();
         let map = world.create_entity().with(firstmap).build();
-
-        world.add_resource(events::Events::new());
-        world.add_resource(player::GameState::Starting);
 
         adventure
             .actor("player".to_string())

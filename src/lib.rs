@@ -10,6 +10,8 @@ extern crate specs_derive;
 extern crate failure;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate log;
 
 pub mod action;
 pub mod adventure;
@@ -23,7 +25,7 @@ pub mod energy;
 pub mod events;
 pub mod fov;
 pub mod grid;
-pub mod log;
+pub mod labyrinth;
 pub mod map;
 pub mod movement;
 pub mod player;

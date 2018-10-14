@@ -26,7 +26,9 @@ pub enum Action {
 }
 
 impl Turn {
-    pub fn wait() -> Turn { Turn::default() }
+    pub fn wait() -> Turn {
+        Turn::default()
+    }
 
     pub fn walk(dx: i32, dy: i32) -> Turn {
         Turn {
@@ -47,12 +49,11 @@ impl<'a> System<'a> for TurnS {
         WriteStorage<'a, Location>,
         WriteStorage<'a, MovementMap>,
         Write<'a, Events>,
-        Write<'a, DebugLog>,
     );
 
     fn run(
         &mut self,
-        (entities, actives, mut turns, mut energies, mut pos, movemaps, mut events, mut debug): Self::SystemData,
+        (entities, actives, mut turns, mut energies, mut pos, movemaps, mut events): Self::SystemData,
 ){
         use specs::Join;
 
@@ -67,7 +68,7 @@ impl<'a> System<'a> for TurnS {
             .join()
         {
             if energy.can_spend(turn.cost) {
-                debug.log(format!("{:?}", turn));
+                debug!("{:?}", turn);
                 match turn.action {
                     Action::Wait => {
                         turn.succeeded = true;

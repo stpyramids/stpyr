@@ -91,3 +91,17 @@ impl<T> IndexMut<usize> for Grid<T> {
         &mut self.grid[index]
     }
 }
+
+impl<T> Index<Pos> for Grid<T> {
+    type Output = T;
+
+    fn index(&self, index: Pos) -> &T {
+        &self.grid[index.to_idx(self.width)]
+    }
+}
+
+impl<T> IndexMut<Pos> for Grid<T> {
+    fn index_mut(&mut self, index: Pos) -> &mut T {
+        &mut self.grid[index.to_idx(self.width)]
+    }
+}

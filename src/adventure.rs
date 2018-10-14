@@ -24,11 +24,15 @@ impl<L: ResourceDataLoader> Adventure<L> {
             opaque: true,
             solid:  false,
         };
+        let mut rows: Grid<Tile> = Grid::new(2, 2, grass);
+        rows.set(Pos(0, 0), wall.to_owned());
+        rows.set(Pos(1, 0), wall.to_owned());
+
         firstmap
             .place(
                 Pos(0, 0),
                 Pos(39, 19),
-                &mazes::recursive_backtracking(pickers::weighted(vec![(1, grass), (10, wall)])),
+                &mazes::recursive_backtracking(pickers::tiled(rows)),
             )
             .expect("couldn't fill grass");
         firstmap

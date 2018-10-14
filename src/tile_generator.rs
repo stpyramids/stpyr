@@ -52,12 +52,28 @@ pub mod pickers {
     pub fn weighted(choices: Vec<(u32, Tile)>) -> impl TilePicker {
         Weighted(choices)
     }
+
+    struct Tiled(Grid<Tile>);
+
+    impl TilePicker for Tiled {
+        fn pick(&self, _current: &Grid<Tile>, pos: Pos) -> Option<Tile> {
+            Some(
+                self.0
+                    .at(Pos(pos.0 % self.0.width, pos.1 % self.0.height))
+                    .to_owned(),
+            )
+        }
+    }
+
+    pub fn tiled(pattern: Grid<Tile>) -> impl TilePicker {
+        Tiled(pattern)
+    }
 }
 
 pub mod generators {
     use super::*;
 
-    pub struct Fill<T: TilePicker>(pub T);
+    struct Fill<T: TilePicker>(pub T);
 
     impl<T: TilePicker> TileGenerator for Fill<T> {
         fn generate(
@@ -71,5 +87,9 @@ pub mod generators {
                 .filter_map(|pos| self.0.pick(current, pos).and_then(|t| Some((pos, t))))
                 .collect())
         }
+    }
+
+    pub fn fill<T: TilePicker>(picker: T) -> impl TileGenerator {
+        Fill(picker)
     }
 }

@@ -12,7 +12,25 @@ impl<L: ResourceDataLoader> Adventure<L> {
     }
 
     pub fn first_map(&self) -> TileMap {
-        let vault: Vault = self.loader.load("room.vault").expect("couldn't load vault");
+        let gazebo: Vault = self
+            .loader
+            .load(
+                "gazebo.vault",
+                VaultLoader(|c, _| match c {
+                    '#' => Tile {
+                        glyph:  Glyph::new('#'),
+                        opaque: true,
+                        solid:  true,
+                    },
+                    '%' => Tile {
+                        glyph:  Glyph::new('%'),
+                        opaque: true,
+                        solid:  false,
+                    },
+                    _ => Tile::default(),
+                }),
+            )
+            .expect("couldn't load vault");
         let mut firstmap = TileMap::new(40, 20);
         let dirt = Tile {
             glyph:  Glyph::new('.'),
@@ -46,8 +64,8 @@ impl<L: ResourceDataLoader> Adventure<L> {
             )
             .expect("couldn't fill grass");
         firstmap
-            .place_vault(Pos(5, 5), &vault)
-            .expect("couldn't place vault");
+            .place_vault(Pos(5, 5), &gazebo)
+            .expect("couldn't place gazebo");
         firstmap
             .place(
                 Pos(20, 0),

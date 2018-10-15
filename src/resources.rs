@@ -4,7 +4,7 @@ use std::{fs::File, path::PathBuf};
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub trait ResourceLoader<T: Sized> {
-    fn load(text: String) -> Result<T>;
+    fn load(&self, text: String) -> Result<T>;
 }
 
 pub trait LoadableResource: Sized {
@@ -12,7 +12,7 @@ pub trait LoadableResource: Sized {
 }
 
 pub trait ResourceDataLoader {
-    fn load<T: LoadableResource>(&self, path: &str) -> Result<T>;
+    fn load<T: LoadableResource>(&self, path: &str, loader: T::Loader) -> Result<T>;
 }
 
 pub struct FileResourceDataLoader {
@@ -28,7 +28,7 @@ impl FileResourceDataLoader {
 }
 
 impl ResourceDataLoader for FileResourceDataLoader {
-    fn load<T: LoadableResource>(&self, path: &str) -> Result<T> {
+    fn load<T: LoadableResource>(&self, path: &str, loader: T::Loader) -> Result<T> {
         use std::io::Read;
 
         let filepath = self.root.join(path);
@@ -36,6 +36,6 @@ impl ResourceDataLoader for FileResourceDataLoader {
         let mut data = String::new();
         file.read_to_string(&mut data)?;
 
-        T::Loader::load(data)
+        loader.load(data)
     }
 }

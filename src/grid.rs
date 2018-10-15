@@ -43,7 +43,12 @@ where
         }
     }
 
-    pub fn load(width: u32, height: u32, text: &str, loader: fn(char, Pos) -> T) -> Option<Self> {
+    pub fn load<L: Fn(char, Pos) -> T + Sized>(
+        width: u32,
+        height: u32,
+        text: &str,
+        loader: L,
+    ) -> Option<Self> {
         Self::new_from_vec(
             width,
             height,

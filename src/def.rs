@@ -29,7 +29,8 @@ impl Definition for ActorDef {
                 glyph:       super::appearance::Glyph::new(self.glyph),
                 name:        self.name,
                 description: self.description,
-            }).with(super::energy::Energy::new(self.speed))
+            })
+            .with(super::energy::Energy::new(self.speed))
             .with(super::action::Turn::default())
             .with(super::fov::FovMap::default())
             .with(super::movement::MovementMap::default())
@@ -41,21 +42,23 @@ pub struct Bestiary {
     bestiary: Vec<ActorDef>,
 }
 
-impl ResourceLoader<Bestiary> for Bestiary {
-    fn load(data: String) -> Result<Self> {
+pub struct BestiaryLoader;
+
+impl ResourceLoader<Bestiary> for BestiaryLoader {
+    fn load(&self, data: String) -> Result<Bestiary> {
         Ok(toml::from_str(&data).unwrap())
     }
 }
 
 impl LoadableResource for Bestiary {
-    type Loader = Bestiary;
+    type Loader = BestiaryLoader;
 }
 
 impl Codex<ActorDef> for Bestiary {
     type ID = String;
 
     fn load<L: ResourceDataLoader>(loader: &L) -> Option<Self> {
-        loader.load("bestiary.toml").ok()
+        loader.load("bestiary.toml", BestiaryLoader).ok()
     }
 
     fn get(&self, id: Self::ID) -> Option<ActorDef> {

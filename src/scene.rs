@@ -79,7 +79,7 @@ impl<L: ResourceDataLoader, D: Display> Scene<L, D> for AdventureScene {
             .with(player::PlayerBrain)
             .with(map::Location {
                 map,
-                pos: Pos(7, 9),
+                pos: Pos(8, 8),
             }).build();
 
         adventure

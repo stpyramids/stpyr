@@ -7,11 +7,11 @@ pub enum GenError {
     TooSmall,
 }
 
-pub trait TilePicker {
+pub trait TilePicker: std::fmt::Debug {
     fn pick(&self, current: &Grid<Tile>, pos: Pos) -> Option<Tile>;
 }
 
-pub trait TileGenerator {
+pub trait TileGenerator: std::fmt::Debug {
     fn generate(&self, current: &Grid<Tile>, bounds: Bounds) -> Result<Vec<(Pos, Tile)>, GenError>;
 }
 
@@ -28,6 +28,7 @@ pub mod pickers {
         tile
     }
 
+    #[derive(Debug)]
     struct Weighted<T: TilePicker>(Vec<(u32, T)>);
 
     impl<T: TilePicker> TilePicker for Weighted<T> {
@@ -51,6 +52,7 @@ pub mod pickers {
         Weighted(choices)
     }
 
+    #[derive(Debug)]
     struct Tiled<T: TilePicker + Clone>(Grid<T>);
 
     impl<T: TilePicker + Clone> TilePicker for Tiled<T> {
@@ -69,6 +71,7 @@ pub mod pickers {
 pub mod generators {
     use super::*;
 
+    #[derive(Debug)]
     struct Fill<T: TilePicker>(pub T);
 
     impl<T: TilePicker> TileGenerator for Fill<T> {

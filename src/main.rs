@@ -16,7 +16,6 @@ fn main() {
     let mut scene = AdventureScene::new();
     scene.setup(&mut world);
 
-    debug!("Starting up...");
     loop {
         match scene.update(&mut world) {
             SceneChange::Exit => break,
@@ -35,7 +34,7 @@ fn setup_logger() -> std::result::Result<(), fern::InitError> {
                 message
             ))
         })
-        .level(log::LevelFilter::Info)
+        .level(log::LevelFilter::Debug)
         .chain(fern::log_file("output.log")?)
         .apply()?;
     Ok(())

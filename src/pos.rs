@@ -1,5 +1,5 @@
 use pathfinding::prelude::absdiff;
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Pos(pub u32, pub u32);
@@ -91,6 +91,14 @@ impl Add for Pos {
     }
 }
 
+impl Sub for Pos {
+    type Output = Pos;
+
+    fn sub(self, other: Pos) -> Pos {
+        Pos(self.0 - other.0, self.1 - other.1)
+    }
+}
+
 impl Add<PosDiff> for Pos {
     type Output = Pos;
 
@@ -170,7 +178,8 @@ impl Iterator for RectIter {
         nextpos.0 += 1;
         if nextpos.0 > end.0 {
             nextpos.1 += 1;
-            nextpos.0 = 0;
+            // TODO: aaack
+            nextpos.0 = ((self.0).0).0;
         }
         self.1 = nextpos;
 

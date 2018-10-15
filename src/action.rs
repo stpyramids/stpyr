@@ -68,7 +68,6 @@ impl<'a> System<'a> for TurnS {
             .join()
         {
             if energy.can_spend(turn.cost) {
-                debug!("{:?}", turn);
                 match turn.action {
                     Action::Wait => {
                         turn.succeeded = true;

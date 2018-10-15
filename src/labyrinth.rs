@@ -9,6 +9,7 @@ pub mod mazes {
     }
 }
 
+#[derive(Debug)]
 struct RecursiveBacktracking<T: TilePicker>(pub T);
 
 #[derive(Copy, Clone)]
@@ -64,16 +65,17 @@ impl<T: TilePicker> TileGenerator for RecursiveBacktracking<T> {
             return Err(GenError::TooSmall);
         }
         let mut rng = rand::thread_rng();
-        let mut maze: RazorMaze = Grid::new(width / 3 + 1, height / 3 + 1, 0);
+        let mut maze: RazorMaze = Grid::new((width / 3) + 1, (height / 3) + 1, 0);
 
         carve_passages_from(Pos(0, 0), &mut maze, &mut rng);
 
-        Ok(start
+        let grid = start
             .iter_to(end)
             .filter_map(|pos| {
-                self.0.pick(current, pos).and_then(|t| {
-                    let raz = maze[Pos(pos.0 / 3, pos.1 / 3)];
-                    match (pos.0 % 3, pos.1 % 3) {
+                let Pos(ix, iy) = pos - start;
+                self.0.pick(current, Pos(ix, iy)).and_then(|t| {
+                    let raz = maze[Pos(ix / 3, iy / 3)];
+                    match (ix % 3, iy % 3) {
                         (1, 1) => None,
                         (1, 0) if (raz & Dir::N as u8) > 0 => None,
                         (1, 2) if (raz & Dir::S as u8) > 0 => None,
@@ -83,6 +85,7 @@ impl<T: TilePicker> TileGenerator for RecursiveBacktracking<T> {
                     }
                 })
             })
-            .collect())
+            .collect();
+        Ok(grid)
     }
 }

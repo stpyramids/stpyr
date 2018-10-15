@@ -11,7 +11,6 @@ impl CursesDisplay {
         raw();
 
         keypad(stdscr(), true);
-        timeout(0);
         noecho();
 
         let default_panic = std::panic::take_hook();
@@ -44,8 +43,8 @@ pub struct CursesDisplayS {
 impl CursesDisplayS {
     pub fn new() -> Self {
         CursesDisplayS {
-            gamewin: newwin(30, 30, 0, 0),
-            logwin:  newwin(30, 80, 0, 32),
+            gamewin: newwin(40, 40, 0, 0),
+            logwin:  newwin(40, 40, 0, 41),
         }
     }
 }

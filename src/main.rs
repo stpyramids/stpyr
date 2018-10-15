@@ -1,7 +1,6 @@
 extern crate stpyr;
 
 use fern;
-#[macro_use]
 extern crate log;
 
 use stpyr::{adventure::*, curses::*, resources::*, scene::*};

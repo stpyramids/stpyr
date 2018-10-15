@@ -1,4 +1,4 @@
-use super::{energy::*, events::*, log::*, map::*, movement::*, player::*, pos::*};
+use super::{energy::*, events::*, map::*, movement::*, player::*, pos::*};
 use specs::prelude::*;
 
 #[derive(Component, Debug)]
@@ -54,7 +54,7 @@ impl<'a> System<'a> for TurnS {
     fn run(
         &mut self,
         (entities, actives, mut turns, mut energies, mut pos, movemaps, mut events): Self::SystemData,
-){
+    ) {
         use specs::Join;
 
         for (entity, _, turn, energy, pos, movemap) in (

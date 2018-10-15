@@ -24,11 +24,11 @@ pub mod pickers {
         }
     }
 
-    pub fn only(tile: Tile) -> impl TilePicker {
+    pub fn only(tile: Tile) -> impl TilePicker + Clone {
         tile
     }
 
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     struct Weighted<T: TilePicker>(Vec<(u32, T)>);
 
     impl<T: TilePicker> TilePicker for Weighted<T> {
@@ -48,7 +48,7 @@ pub mod pickers {
         }
     }
 
-    pub fn weighted<T: TilePicker>(choices: Vec<(u32, T)>) -> impl TilePicker {
+    pub fn weighted<T: TilePicker + Clone>(choices: Vec<(u32, T)>) -> impl TilePicker + Clone {
         Weighted(choices)
     }
 
@@ -63,7 +63,7 @@ pub mod pickers {
         }
     }
 
-    pub fn tiled(pattern: Grid<Tile>) -> impl TilePicker {
+    pub fn tiled<T: TilePicker + Clone>(pattern: Grid<T>) -> impl TilePicker {
         Tiled(pattern)
     }
 }

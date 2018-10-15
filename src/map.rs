@@ -1,4 +1,6 @@
-use super::{appearance::Glyph, grid::*, pos::*, tile_generator::TileGenerator, vault::*};
+use super::{
+    appearance::Glyph, def::TerrainDef, grid::*, pos::*, tile_generator::TileGenerator, vault::*,
+};
 use failure::Error;
 use specs::{prelude::*, storage::BTreeStorage};
 
@@ -7,6 +9,16 @@ pub struct Tile {
     pub glyph:  Glyph,
     pub solid:  bool,
     pub opaque: bool,
+}
+
+impl From<TerrainDef> for Tile {
+    fn from(def: TerrainDef) -> Tile {
+        Tile {
+            glyph:  Glyph::new(def.glyph),
+            solid:  def.solid,
+            opaque: def.opaque,
+        }
+    }
 }
 
 impl Default for Tile {

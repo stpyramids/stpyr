@@ -1,0 +1,22 @@
+[[terrain]]
+id = "dirt floor"
+glyph = '.'
+
+[[terrain]]
+id = "brick wall"
+glyph = '#'
+opaque = true
+solid = true
+
+[[terrain]]
+id = "grass"
+glyph = ','
+
+[[terrain]]
+id = "tall grass"
+glyph = ','
+opaque = true
+
+[[terrain]]
+id = "crumbled bricks"
+glyph = '%'

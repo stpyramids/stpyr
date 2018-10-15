@@ -1,4 +1,4 @@
-use super::{appearance::Glyph, map::*, resources::*, tile_generator::*};
+use super::{map::*, resources::*, tile_generator::*};
 use failure::*;
 
 #[derive(Debug)]

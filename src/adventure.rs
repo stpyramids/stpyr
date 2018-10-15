@@ -3,12 +3,18 @@ use super::{appearance::*, def::*, labyrinth::*, map::*, pos::*, resources::*, v
 pub struct Adventure<L: ResourceDataLoader> {
     loader:   L,
     bestiary: Bestiary,
+    terrain:  Terrain,
 }
 
 impl<L: ResourceDataLoader> Adventure<L> {
     pub fn new(loader: L) -> Self {
         let bestiary = Codex::load(&loader).unwrap();
-        Adventure { loader, bestiary }
+        let terrain = loader.load("terrain.toml", TerrainLoader).unwrap();
+        Adventure {
+            loader,
+            bestiary,
+            terrain,
+        }
     }
 
     pub fn first_map(&self) -> TileMap {
@@ -32,29 +38,18 @@ impl<L: ResourceDataLoader> Adventure<L> {
             )
             .expect("couldn't load vault");
         let mut firstmap = TileMap::new(40, 20);
-        let dirt = Tile {
-            glyph:  Glyph::new('.'),
-            opaque: false,
-            solid:  false,
-        };
-        let wall = Tile {
-            glyph:  Glyph::new('#'),
-            opaque: true,
-            solid:  true,
-        };
-        let grass = Tile {
-            glyph:  Glyph::new(','),
-            opaque: true,
-            solid:  false,
-        };
-        let rubble = Tile {
-            glyph:  Glyph::new('%'),
-            opaque: false,
-            solid:  false,
-        };
-        let mut rows: Grid<Tile> = Grid::new(2, 2, grass);
-        rows.set(Pos(0, 0), dirt.to_owned());
-        rows.set(Pos(1, 0), dirt.to_owned());
+        let dirt: Tile = self.terrain.get("dirt floor").unwrap().into();
+        let wall: Tile = self.terrain.get("brick wall").unwrap().into();
+        let tgrass: Tile = self.terrain.get("tall grass").unwrap().into();
+        let grass: Tile = self.terrain.get("grass").unwrap().into();
+        let rubble: Tile = self.terrain.get("crumbled bricks").unwrap().into();
+        let mut rows = Grid::new(
+            2,
+            2,
+            pickers::weighted(vec![(1, tgrass.to_owned()), (3, grass.to_owned())]),
+        );
+        rows.set(Pos(0, 0), pickers::weighted(vec![(1, dirt.to_owned())]));
+        rows.set(Pos(1, 0), pickers::weighted(vec![(1, dirt.to_owned())]));
 
         firstmap
             .place(

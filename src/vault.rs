@@ -1,4 +1,5 @@
 use super::{appearance::Glyph, map::*, resources::*, tile_generator::*};
+use failure::*;
 
 #[derive(Debug)]
 pub struct Vault {
@@ -25,7 +26,8 @@ impl ResourceLoader<Vault> for Vault {
                 solid:  false,
             },
             _ => Tile::default(),
-        });
+        })
+        .ok_or_else(|| err_msg("vault wrong length"))?;
         Ok(Vault { tiles })
     }
 }

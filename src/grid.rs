@@ -21,7 +21,7 @@ pub enum BlitError {
 
 impl<T> Grid<T>
 where
-    T: Clone + Default,
+    T: Clone,
 {
     pub fn new(width: u32, height: u32, default: T) -> Self {
         Grid {
@@ -31,13 +31,34 @@ where
         }
     }
 
-    pub fn load(width: u32, height: u32, text: &str, loader: fn(char, Pos) -> T) -> Self {
-        let mut grid = Self::new(width, height, T::default());
-        for (idx, glyph) in text.chars().filter(|c| !c.is_whitespace()).enumerate() {
-            let pos = grid.idx_to_pos(idx);
-            grid.set(pos, loader(glyph, pos))
+    pub fn new_from_vec(width: u32, height: u32, grid: Vec<T>) -> Option<Self> {
+        if grid.len() == (width * height) as usize {
+            Some(Grid {
+                width,
+                height,
+                grid,
+            })
+        } else {
+            None
         }
-        grid
+    }
+
+    pub fn load(width: u32, height: u32, text: &str, loader: fn(char, Pos) -> T) -> Option<Self> {
+        Self::new_from_vec(
+            width,
+            height,
+            text.chars()
+                .filter(|c| !c.is_whitespace())
+                .enumerate()
+                .map(|(idx, glyph)| {
+                    let idx = idx as u32;
+                    let x = idx % width;
+                    let y = idx / width;
+                    let pos = Pos(x, y);
+                    loader(glyph, pos)
+                })
+                .collect(),
+        )
     }
 
     pub fn at(&self, pos: Pos) -> &T {

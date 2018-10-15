@@ -18,29 +18,27 @@ pub trait TileGenerator {
 pub mod pickers {
     use super::*;
 
-    struct Only(Tile);
-
-    impl TilePicker for Only {
+    impl TilePicker for Tile {
         fn pick(&self, _current: &Grid<Tile>, _pos: Pos) -> Option<Tile> {
-            Some(self.0.to_owned())
+            Some(self.to_owned())
         }
     }
 
     pub fn only(tile: Tile) -> impl TilePicker {
-        Only(tile)
+        tile
     }
 
-    struct Weighted(Vec<(u32, Tile)>);
+    struct Weighted<T: TilePicker>(Vec<(u32, T)>);
 
-    impl TilePicker for Weighted {
-        fn pick(&self, _current: &Grid<Tile>, _pos: Pos) -> Option<Tile> {
+    impl<T: TilePicker> TilePicker for Weighted<T> {
+        fn pick(&self, current: &Grid<Tile>, pos: Pos) -> Option<Tile> {
             use rand::Rng;
 
             let top: u32 = self.0.iter().map(|(w, _)| w).sum();
             let mut idx = rand::thread_rng().gen_range(0, top);
             for (w, t) in self.0.iter() {
                 if idx < *w {
-                    return Some(t.to_owned());
+                    return t.pick(current, pos);
                 } else {
                     idx -= w
                 }
@@ -49,19 +47,17 @@ pub mod pickers {
         }
     }
 
-    pub fn weighted(choices: Vec<(u32, Tile)>) -> impl TilePicker {
+    pub fn weighted<T: TilePicker>(choices: Vec<(u32, T)>) -> impl TilePicker {
         Weighted(choices)
     }
 
-    struct Tiled(Grid<Tile>);
+    struct Tiled<T: TilePicker + Clone>(Grid<T>);
 
-    impl TilePicker for Tiled {
-        fn pick(&self, _current: &Grid<Tile>, pos: Pos) -> Option<Tile> {
-            Some(
-                self.0
-                    .at(Pos(pos.0 % self.0.width, pos.1 % self.0.height))
-                    .to_owned(),
-            )
+    impl<T: TilePicker + Clone> TilePicker for Tiled<T> {
+        fn pick(&self, current: &Grid<Tile>, pos: Pos) -> Option<Tile> {
+            self.0
+                .at(Pos(pos.0 % self.0.width, pos.1 % self.0.height))
+                .pick(current, pos)
         }
     }
 

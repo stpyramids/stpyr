@@ -46,10 +46,19 @@ impl<L: ResourceDataLoader> Adventure<L> {
         let mut rows = Grid::new(
             2,
             2,
-            pickers::weighted(vec![(1, tgrass.to_owned()), (3, grass.to_owned())]),
+            pickers::weighted(vec![
+                (1, pickers::only(tgrass.to_owned())),
+                (3, pickers::only(grass.to_owned())),
+            ]),
         );
-        rows.set(Pos(0, 0), pickers::weighted(vec![(1, dirt.to_owned())]));
-        rows.set(Pos(1, 0), pickers::weighted(vec![(1, dirt.to_owned())]));
+        rows.set(
+            Pos(0, 0),
+            pickers::weighted(vec![(1, pickers::only(dirt.to_owned()))]),
+        );
+        rows.set(
+            Pos(1, 0),
+            pickers::weighted(vec![(1, pickers::only(dirt.to_owned()))]),
+        );
 
         firstmap
             .place(
@@ -65,7 +74,11 @@ impl<L: ResourceDataLoader> Adventure<L> {
             .place(
                 Pos(20, 0),
                 Pos(39, 19),
-                &mazes::recursive_backtracking(pickers::weighted(vec![(5, wall), (1, rubble)])),
+                &mazes::recursive_backtracking(pickers::weighted(vec![
+                    (3, pickers::only(wall)),
+                    (1, pickers::none()),
+                    (1, pickers::only(rubble)),
+                ])),
             )
             .expect("couldn't make maze");
 

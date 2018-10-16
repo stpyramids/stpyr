@@ -4,7 +4,7 @@ use std::{
     slice::Iter,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Grid<T> {
     pub width:  u32,
     pub height: u32,

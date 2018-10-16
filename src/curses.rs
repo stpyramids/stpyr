@@ -7,6 +7,7 @@ pub struct CursesDisplay();
 
 impl CursesDisplay {
     pub fn init() -> Self {
+        setlocale(LcCategory::all, "");
         initscr();
         raw();
 
@@ -68,6 +69,7 @@ impl<'a> System<'a> for CursesDisplayS {
 
     fn run(&mut self, (position, apps, maps, fovs, player, events, game): Self::SystemData) {
         use specs::Join;
+        let xray = true;
 
         if !game.active() {
             // Don't rerender except on a turn
@@ -79,13 +81,13 @@ impl<'a> System<'a> for CursesDisplayS {
 
         let mut display: Grid<char> = Grid::new(map.tiles.width, map.tiles.height, ' ');
         for pos in Pos(0, 0).iter_to(Pos(map.tiles.width - 1, map.tiles.height - 1)) {
-            if fov.visible(pos) {
+            if xray || fov.visible(pos) {
                 display.set(pos, map.tiles.at(pos).glyph.ascii());
             }
         }
 
         for (position, appearance) in (&position, &apps).join() {
-            if fov.visible(position.pos) {
+            if xray || fov.visible(position.pos) {
                 display.set(position.pos, appearance.glyph.ascii());
             }
         }

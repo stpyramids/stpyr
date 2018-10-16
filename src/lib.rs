@@ -1,4 +1,6 @@
 #![feature(try_blocks)]
+#![feature(box_syntax)]
+#![feature(box_patterns)]
 #![warn(clippy::all)]
 #![warn(rust_2018_idioms)]
 // SystemData is often complex :(

@@ -8,3 +8,4 @@ edition = "2018"
 [dependencies]
 stpyr = { path = "../stpyr" }
 ncurses = "5.94.0"
+log = "*"

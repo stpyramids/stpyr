@@ -35,3 +35,13 @@ pub mod resources;
 pub mod scene;
 pub mod tile_generator;
 pub mod vault;
+pub use specs;
+
+pub mod prelude {
+    pub use super::{
+        action::*, adventure::*, ai::*, appearance::*, behavior::*, def::*, display::*, energy::*,
+        events::*, fov::*, grid::*, map::*, movement::*, player::*, pos::*, resources::*, scene::*,
+        vault::*,
+    };
+    pub use specs::*;
+}

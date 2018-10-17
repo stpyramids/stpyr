@@ -7,5 +7,6 @@ edition = "2018"
 
 [dependencies]
 stpyr = { path = "../stpyr" }
+stpyr_curses = { path = "../stpyr_curses" }
 fern = "*"
 log = "*"

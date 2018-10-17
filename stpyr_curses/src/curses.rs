@@ -1,7 +1,6 @@
-use super::{appearance::*, display::*, events::*, fov::*, grid::*, map::*, player::*, pos::*};
 use ncurses::*;
-use specs::prelude::*;
 use std::char;
+use stpyr::prelude::*;
 
 pub struct CursesDisplay();
 
@@ -68,7 +67,7 @@ impl<'a> System<'a> for CursesDisplayS {
     );
 
     fn run(&mut self, (position, apps, maps, fovs, player, events, game): Self::SystemData) {
-        use specs::Join;
+        use stpyr::specs::Join;
         let xray = true;
 
         if !game.active() {

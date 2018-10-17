@@ -20,7 +20,6 @@ pub mod adventure;
 pub mod ai;
 pub mod appearance;
 pub mod behavior;
-pub mod curses;
 pub mod def;
 pub mod display;
 pub mod energy;
@@ -36,3 +35,13 @@ pub mod resources;
 pub mod scene;
 pub mod tile_generator;
 pub mod vault;
+pub use specs;
+
+pub mod prelude {
+    pub use super::{
+        action::*, adventure::*, ai::*, appearance::*, behavior::*, def::*, display::*, energy::*,
+        events::*, fov::*, grid::*, map::*, movement::*, player::*, pos::*, resources::*, scene::*,
+        vault::*,
+    };
+    pub use specs::*;
+}

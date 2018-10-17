@@ -20,7 +20,6 @@ pub mod adventure;
 pub mod ai;
 pub mod appearance;
 pub mod behavior;
-pub mod curses;
 pub mod def;
 pub mod display;
 pub mod energy;

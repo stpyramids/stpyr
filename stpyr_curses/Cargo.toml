@@ -1,0 +1,10 @@
+[package]
+name = "stpyr_curses"
+version = "0.1.0"
+authors = ["Matthew Boeh <m@mboeh.com>"]
+publish = false
+edition = "2018"
+
+[dependencies]
+stpyr = { path = "../stpyr" }
+ncurses = "5.94.0"

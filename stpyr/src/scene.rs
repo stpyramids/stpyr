@@ -1,5 +1,5 @@
 use super::{adventure::*, def::*, display::*, pos::*, resources::*, *};
-use specs::prelude::*;
+use specs::{prelude::*, shred};
 
 pub struct AWorld<L: ResourceDataLoader, D: Display> {
     pub specs_world: specs::World,
@@ -17,8 +17,12 @@ impl<L: ResourceDataLoader, D: Display> AWorld<L, D> {
     }
 }
 
-pub struct AdventureScene {
+pub struct AdventureScene<D>
+where
+    D: specs::RunNow<'_>,
+{
     dispatcher: Dispatcher<'static, 'static>,
+    _phantom:   std::marker::PhantomData<D>,
 }
 
 pub enum SceneChange<L: ResourceDataLoader, D: Display> {
@@ -34,8 +38,11 @@ pub trait Scene<L: ResourceDataLoader, D: Display> {
     fn update(&mut self, world: &mut AWorld<L, D>) -> SceneChange<L, D>;
 }
 
-impl AdventureScene {
-    pub fn new() -> AdventureScene {
+impl<D> AdventureScene<D>
+where
+    D: for<'_> specs::RunNow<'_> + specs::System<'_>,
+{
+    pub fn new(display: &D) -> AdventureScene<D> {
         AdventureScene {
             dispatcher: DispatcherBuilder::new()
                 .with(player::PlayerStateS, "player", &[])
@@ -49,20 +56,15 @@ impl AdventureScene {
                 .with(action::TurnS, "turn", &["player_move"])
                 .with(fov::FovS, "fov_end", &["turn"])
                 .with_barrier()
-                .with_thread_local(curses::CursesDisplayS::new())
+                .with_thread_local(*display)
                 .with_thread_local(events::EventPumpS)
                 .build(),
+            _phantom:   std::marker::PhantomData,
         }
     }
 }
 
-impl Default for AdventureScene {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<L: ResourceDataLoader, D: Display> Scene<L, D> for AdventureScene {
+impl<L: ResourceDataLoader, D: Display, DS: System<'static>> Scene<L, D> for AdventureScene<DS> {
     fn setup(&mut self, aworld: &mut AWorld<L, D>) {
         let world = &mut aworld.specs_world;
         let adventure = &aworld.adventure;
@@ -80,7 +82,8 @@ impl<L: ResourceDataLoader, D: Display> Scene<L, D> for AdventureScene {
             .with(map::Location {
                 map,
                 pos: Pos(8, 8),
-            }).build();
+            })
+            .build();
 
         adventure
             .actor("snake".to_string())
@@ -90,7 +93,8 @@ impl<L: ResourceDataLoader, D: Display> Scene<L, D> for AdventureScene {
             .with(map::Location {
                 map,
                 pos: Pos(1, 1),
-            }).build();
+            })
+            .build();
 
         adventure
             .actor("cat".to_string())
@@ -100,7 +104,8 @@ impl<L: ResourceDataLoader, D: Display> Scene<L, D> for AdventureScene {
             .with(map::Location {
                 map,
                 pos: Pos(13, 12),
-            }).build();
+            })
+            .build();
     }
 
     fn update(&mut self, aworld: &mut AWorld<L, D>) -> SceneChange<L, D> {

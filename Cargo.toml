@@ -1,2 +1,2 @@
 [workspace]
-members = [ "stpyr", "demo" ]
+members = [ "stpyr", "stpyr_curses", "demo" ]

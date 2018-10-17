@@ -1,20 +1,2 @@
-[package]
-name = "stpyr"
-version = "0.1.0"
-authors = ["Matthew Boeh <m@mboeh.com>"]
-publish = false
-edition = "2018"
-
-[dependencies]
-specs = "0.12.1"
-specs-derive = "0.2.0"
-ncurses = "5.94.0"
-pathfinding = "0.8"
-line_drawing = "0.7.0"
-failure = "0.1.2"
-toml = "0.4"
-serde = "1.0"
-serde_derive = "1.0"
-rand = "0.5.5"
-log = "0.4"
-fern = "0.5"
+[workspace]
+members = [ "stpyr", "demo" ]

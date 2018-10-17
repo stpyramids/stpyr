@@ -1,7 +1,8 @@
-extern crate stpyr;
+#![warn(clippy::all)]
+#![warn(rust_2018_idioms)]
 
 use fern;
-extern crate log;
+use log;
 
 use stpyr::{adventure::*, curses::*, resources::*, scene::*};
 
@@ -9,7 +10,7 @@ fn main() {
     setup_logger().unwrap();
 
     let mut world = AWorld::new(
-        Adventure::new(FileResourceDataLoader::new("res")),
+        Adventure::new(FileResourceDataLoader::new("demo/res")),
         CursesDisplay::init(),
     );
     let mut scene = AdventureScene::new();

@@ -4,10 +4,12 @@ use failure::*;
 use std::collections::HashMap;
 
 #[derive(Deserialize, Clone)]
-pub struct VaultDef {
-    pub id:     String,
-    pub grid:   String,
+struct VaultDef {
+    pub id: String,
+    pub grid: String,
     pub glyphs: HashMap<char, String>,
+    #[serde(flatten)]
+    pub terrain: Terrain,
 }
 
 #[derive(Deserialize)]
@@ -16,7 +18,7 @@ pub struct Vaults {
 }
 
 impl Vaults {
-    pub fn get(&self, id: &str) -> Option<VaultDef> {
+    fn get(&self, id: &str) -> Option<VaultDef> {
         self.vaults
             .iter()
             .find(|e| e.id == *id)
@@ -38,6 +40,7 @@ impl Vaults {
         for (glyph, t_id) in def.glyphs.iter() {
             let t = terrain
                 .get(t_id)
+                .or_else(|| def.terrain.get(t_id))
                 .ok_or_else(|| format_err!("specified terrain not found: {}", t_id))?;
             tilemap.insert(*glyph, t.into());
         }
@@ -53,7 +56,7 @@ impl Vaults {
 pub struct VaultsLoader;
 impl ResourceLoader<Vaults> for VaultsLoader {
     fn load(&self, data: String) -> Result<Vaults, Error> {
-        Ok(toml::from_str(&data).unwrap())
+        Ok(toml::from_str(&data)?)
     }
 }
 

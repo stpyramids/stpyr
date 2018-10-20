@@ -27,6 +27,10 @@ impl<L: ResourceDataLoader> Adventure<L> {
             .vaults
             .build("gazebo", &self.terrain)
             .expect("couldn't load vault");
+        let shrine = self
+            .vaults
+            .build("shrine", &self.terrain)
+            .expect("couldn't load vault");
         let dirt: Tile = self.terrain.get("dirt floor").unwrap().into();
         let wall: Tile = self.terrain.get("brick wall").unwrap().into();
         let tgrass: Tile = self.terrain.get("tall grass").unwrap().into();
@@ -70,7 +74,9 @@ impl<L: ResourceDataLoader> Adventure<L> {
                 ])),
             )
             .expect("couldn't make maze");
-
+        firstmap
+            .place_vault(Pos(32, 12), &shrine)
+            .expect("couldn't place shrine");
         firstmap
     }
 

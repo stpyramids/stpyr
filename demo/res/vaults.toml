@@ -12,3 +12,39 @@ grid = """
     '.' = "dirt floor"
     '#' = "brick wall"
     '%' = "flowers"
+    [[vaults.terrain]]
+    id = "flowers"
+    glyph = "%"
+
+[[vaults]]
+id = "shrine"
+grid = """
+###.###
+#*...*#
+..._...
+#.....#
+#*...*#
+###.###"""
+    [vaults.glyphs]
+    '.' = "basalt floor"
+    '#' = 'basalt wall'
+    '*' = 'brazier'
+    '_' = 'ancient altar'
+    [[vaults.terrain]]
+    id = "basalt floor"
+    glyph = '.'
+    [[vaults.terrain]]
+    id = "flowers"
+    glyph = "%"
+    [[vaults.terrain]]
+    id = "basalt wall"
+    glyph = '#'
+    opaque = true
+    solid = true
+    [[vaults.terrain]]
+    id = "brazier"
+    glyph = "*"
+    solid = true
+    [[vaults.terrain]]
+    id = "ancient altar"
+    glyph = "_"

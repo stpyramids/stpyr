@@ -11,7 +11,7 @@ pub struct TerrainDef {
     pub solid: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Terrain {
     terrain: Vec<TerrainDef>,
 }

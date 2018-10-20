@@ -1,0 +1,14 @@
+[[vaults]]
+id = "gazebo"
+grid = """
+.#...#.
+#.....#
+#.%.%.#
+.......
+#.%.%.#
+#.....#
+.#...#."""
+    [vaults.glyphs]
+    '.' = "dirt floor"
+    '#' = "brick wall"
+    '%' = "flowers"

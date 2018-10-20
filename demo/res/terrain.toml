@@ -13,6 +13,10 @@ id = "grass"
 glyph = ','
 
 [[terrain]]
+id = "flowers"
+glyph = "%"
+
+[[terrain]]
 id = "tall grass"
 glyph = ','
 opaque = true

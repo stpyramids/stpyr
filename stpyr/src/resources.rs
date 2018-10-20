@@ -1,10 +1,8 @@
 use failure::Error;
 use std::{fs::File, path::PathBuf};
 
-pub type Result<T> = std::result::Result<T, Error>;
-
 pub trait ResourceLoader<T: Sized> {
-    fn load(&self, text: String) -> Result<T>;
+    fn load(&self, text: String) -> Result<T, Error>;
 }
 
 pub trait LoadableResource: Sized {
@@ -12,7 +10,7 @@ pub trait LoadableResource: Sized {
 }
 
 pub trait ResourceDataLoader {
-    fn load<T: LoadableResource>(&self, path: &str, loader: T::Loader) -> Result<T>;
+    fn load<T: LoadableResource>(&self, path: &str, loader: T::Loader) -> Result<T, Error>;
 }
 
 pub struct FileResourceDataLoader {
@@ -28,7 +26,7 @@ impl FileResourceDataLoader {
 }
 
 impl ResourceDataLoader for FileResourceDataLoader {
-    fn load<T: LoadableResource>(&self, path: &str, loader: T::Loader) -> Result<T> {
+    fn load<T: LoadableResource>(&self, path: &str, loader: T::Loader) -> Result<T, Error> {
         use std::io::Read;
 
         let filepath = self.root.join(path);

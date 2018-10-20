@@ -43,7 +43,7 @@ where
         }
     }
 
-    pub fn load<L: Fn(char, Pos) -> T + Sized>(
+    pub fn load<L: Fn(char, Pos) -> Option<T> + Sized>(
         width: u32,
         height: u32,
         text: &str,
@@ -55,7 +55,7 @@ where
             text.chars()
                 .filter(|c| !c.is_whitespace())
                 .enumerate()
-                .map(|(idx, glyph)| {
+                .flat_map(|(idx, glyph)| {
                     let idx = idx as u32;
                     let x = idx % width;
                     let y = idx / width;

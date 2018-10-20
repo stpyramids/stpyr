@@ -1,43 +1,32 @@
-use super::{appearance::*, def::*, labyrinth::*, map::*, pos::*, resources::*, vault::*};
+use super::{def::*, labyrinth::*, map::*, pos::*, resources::*};
 
 pub struct Adventure<L: ResourceDataLoader> {
-    loader:   L,
+    #[allow(dead_code)]
+    loader: L,
     bestiary: Bestiary,
-    terrain:  Terrain,
+    terrain: Terrain,
+    vaults: Vaults,
 }
 
 impl<L: ResourceDataLoader> Adventure<L> {
     pub fn new(loader: L) -> Self {
         let bestiary = Codex::load(&loader).unwrap();
         let terrain = loader.load("terrain.toml", TerrainLoader).unwrap();
+        let vaults = loader.load("vaults.toml", VaultsLoader).unwrap();
         Adventure {
             loader,
             bestiary,
             terrain,
+            vaults,
         }
     }
 
     pub fn first_map(&self) -> TileMap {
-        let gazebo: Vault = self
-            .loader
-            .load(
-                "gazebo.vault",
-                VaultLoader(|c, _| match c {
-                    '#' => Tile {
-                        glyph:  Glyph::new('#'),
-                        opaque: true,
-                        solid:  true,
-                    },
-                    '%' => Tile {
-                        glyph:  Glyph::new('%'),
-                        opaque: true,
-                        solid:  false,
-                    },
-                    _ => Tile::default(),
-                }),
-            )
-            .expect("couldn't load vault");
         let mut firstmap = TileMap::new(40, 20);
+        let gazebo = self
+            .vaults
+            .build("gazebo", &self.terrain)
+            .expect("couldn't load vault");
         let dirt: Tile = self.terrain.get("dirt floor").unwrap().into();
         let wall: Tile = self.terrain.get("brick wall").unwrap().into();
         let tgrass: Tile = self.terrain.get("tall grass").unwrap().into();

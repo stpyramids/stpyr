@@ -1,25 +1,9 @@
-use super::{map::*, resources::*, tile_generator::*};
-use failure::*;
+pub use super::map::Tile;
+use super::tile_generator::*;
 
 #[derive(Debug)]
 pub struct Vault {
     pub tiles: Grid<Tile>,
-}
-
-pub struct VaultLoader(pub fn(char, Pos) -> Tile);
-
-impl ResourceLoader<Vault> for VaultLoader {
-    fn load(&self, data: String) -> Result<Vault> {
-        let lines: Vec<String> = data
-            .split(char::is_whitespace)
-            .map(|s| s.to_owned())
-            .collect();
-        let width = lines[0].len() as u32;
-        let height = lines.len() as u32;
-        let tiles = Grid::load(width, height, &lines.join(""), self.0)
-            .ok_or_else(|| err_msg("vault wrong length"))?;
-        Ok(Vault { tiles })
-    }
 }
 
 impl TileGenerator for Vault {
@@ -39,8 +23,4 @@ impl TileGenerator for Vault {
             .filter(|(pos, _)| pos.within(bounds))
             .collect())
     }
-}
-
-impl LoadableResource for Vault {
-    type Loader = VaultLoader;
 }

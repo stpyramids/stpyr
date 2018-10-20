@@ -64,29 +64,30 @@ impl<'a> System<'a> for CursesDisplayS {
         Read<'a, Option<PlayerState>>,
         Read<'a, Events>,
         Read<'a, GameState>,
+        Read<'a, WizardFlags>,
     );
 
-    fn run(&mut self, (position, apps, maps, fovs, player, events, game): Self::SystemData) {
+    fn run(&mut self, (position, apps, maps, fovs, player, events, game, wizard): Self::SystemData) {
         use stpyr::specs::Join;
-        let xray = true;
 
         if !game.active() {
             // Don't rerender except on a turn
             return;
         }
 
-        let map = maps.get(player.unwrap().map).unwrap();
-        let fov = fovs.get(player.unwrap().entity).unwrap();
+        let player = player.unwrap();
+        let map = maps.get(player.map).unwrap();
+        let fov = fovs.get(player.entity).unwrap();
 
         let mut display: Grid<char> = Grid::new(map.tiles.width, map.tiles.height, ' ');
         for pos in Pos(0, 0).iter_to(Pos(map.tiles.width - 1, map.tiles.height - 1)) {
-            if xray || fov.visible(pos) {
+            if wizard.xray || fov.visible(pos) {
                 display.set(pos, map.tiles.at(pos).glyph.ascii());
             }
         }
 
         for (position, appearance) in (&position, &apps).join() {
-            if xray || fov.visible(position.pos) {
+            if wizard.xray || fov.visible(position.pos) {
                 display.set(position.pos, appearance.glyph.ascii());
             }
         }

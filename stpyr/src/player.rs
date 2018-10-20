@@ -1,4 +1,4 @@
-use super::{action::*, map::*, pos::*};
+use super::{action::*, map::*, pos::*, wizard::*};
 use specs::prelude::*;
 
 #[derive(Default, Component, Debug)]
@@ -13,7 +13,9 @@ pub enum GameState {
 }
 
 impl GameState {
-    pub fn active(&self) -> bool { *self != GameState::Idle }
+    pub fn active(&self) -> bool {
+        *self != GameState::Idle
+    }
 
     fn input(&self) -> Option<char> {
         match self {
@@ -23,7 +25,9 @@ impl GameState {
     }
 }
 impl Default for GameState {
-    fn default() -> GameState { GameState::Idle }
+    fn default() -> GameState {
+        GameState::Idle
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -60,9 +64,10 @@ impl<'a> System<'a> for PlayerMoveS {
         Read<'a, GameState>,
         ReadStorage<'a, PlayerBrain>,
         WriteStorage<'a, Turn>,
+        Write<'a, WizardFlags>,
     );
 
-    fn run(&mut self, (game, player, mut turn): Self::SystemData) {
+    fn run(&mut self, (game, player, mut turn, mut wizard): Self::SystemData) {
         use specs::Join;
 
         for (_, turn) in (&player, &mut turn).join() {
@@ -72,6 +77,10 @@ impl<'a> System<'a> for PlayerMoveS {
                     'j' => Turn::walk(0, 1),
                     'k' => Turn::walk(0, -1),
                     'l' => Turn::walk(1, 0),
+                    '#' => {
+                        wizard.toggle_xray();
+                        Turn::wait()
+                    }
                     _ => Turn::wait(),
                 },
                 None => Turn::wait(),
